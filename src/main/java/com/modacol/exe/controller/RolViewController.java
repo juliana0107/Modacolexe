@@ -3,8 +3,10 @@ package com.modacol.exe.controller;
 import com.modacol.exe.dto.CategoriaDTO;
 import com.modacol.exe.dto.RolDTO;
 import com.modacol.exe.service.RolService;
+import jakarta.validation.Valid;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -42,13 +44,24 @@ public class RolViewController {
 
 
     @PostMapping
-    public String guardar(@ModelAttribute("rol") RolDTO formDto) {
-
-        if (formDto.getId() == null) {
-            rolService.crear(formDto);
-        } else {
-            rolService.actualizar(formDto.getId(), formDto);
+    public String guardar(@Valid @ModelAttribute("rol") RolDTO formDto, 
+                         BindingResult result, Model model) {
+        
+        if (result.hasErrors()) {
+            return "roles/form";
         }
+        
+        try {
+            if (formDto.getId() == null) {
+                rolService.crear(formDto);
+            } else {
+                rolService.actualizar(formDto.getId(), formDto);
+            }
+        } catch (Exception e) {
+            result.reject("error.general", "Error al guardar el rol: " + e.getMessage());
+            return "roles/form";
+        }
+        
         return "redirect:/roles";
     }
 

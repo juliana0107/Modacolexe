@@ -2,8 +2,10 @@ package com.modacol.exe.controller;
 
 import com.modacol.exe.dto.ProveedorDTO;
 import com.modacol.exe.service.ProveedorService;
+import jakarta.validation.Valid;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 @Controller
@@ -42,19 +44,29 @@ public class ProveedorViewController {
     }
 
     @PostMapping
-    public String guardar(@ModelAttribute("proveedor") ProveedorDTO form) {
+    public String guardar(@Valid @ModelAttribute("proveedor") ProveedorDTO form, 
+                         BindingResult result, Model model) {
+        
+        if (result.hasErrors()) {
+            return "proveedores/form";
+        }
+        
+        try {
+            ProveedorDTO dto = new ProveedorDTO();
+            dto.setRazonSocial(form.getRazonSocial());
+            dto.setIdentificacion(form.getIdentificacion());
+            dto.setDireccion(form.getDireccion());
+            dto.setCorreo(form.getCorreo());
+            dto.setContacto(form.getContacto());
 
-        ProveedorDTO dto = new ProveedorDTO();
-        dto.setRazonSocial(form.getRazonSocial());
-        dto.setIdentificacion(form.getIdentificacion());
-        dto.setDireccion(form.getDireccion());
-        dto.setCorreo(form.getCorreo());
-        dto.setContacto(form.getContacto());
-
-        if (form.getId() == null) {
-            proveedorService.crear(dto);
-        } else {
-            proveedorService.actualizar(form.getId(), dto);
+            if (form.getId() == null) {
+                proveedorService.crear(dto);
+            } else {
+                proveedorService.actualizar(form.getId(), dto);
+            }
+        } catch (Exception e) {
+            result.reject("error.general", "Error al guardar el proveedor: " + e.getMessage());
+            return "proveedores/form";
         }
 
         return "redirect:/proveedores";

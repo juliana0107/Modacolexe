@@ -3,8 +3,10 @@ package com.modacol.exe.controller;
 import com.modacol.exe.dto.ProductoDTO;
 import com.modacol.exe.service.ProductoService;
 import com.modacol.exe.service.ProveedorService;
+import jakarta.validation.Valid;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -59,12 +61,30 @@ public class ProductoViewController {
     }
 
     @PostMapping
-    public String guardar(@ModelAttribute("producto") ProductoDTO productoDTO, @RequestParam(value = "id", required = false) Long id) {
-
-        if (productoDTO.getId() == null) {
-            productoService.crear(productoDTO);
-        } else {
-            productoService.actualizar(productoDTO.getId(), productoDTO);
+    public String guardar(@Valid @ModelAttribute("producto") ProductoDTO productoDTO, 
+                         BindingResult result, 
+                         @RequestParam(value = "id", required = false) Long id,
+                         Model model) {
+        
+        if (result.hasErrors()) {
+            model.addAttribute("proveedores", proveedorService.listar());
+            model.addAttribute("content", "productos/form :: content");
+            model.addAttribute("pageTitle", productoDTO.getId() == null ? "Nuevo Producto - Modacol" : "Editar Producto - Modacol");
+            return "productos/form";
+        }
+        
+        try {
+            if (productoDTO.getId() == null) {
+                productoService.crear(productoDTO);
+            } else {
+                productoService.actualizar(productoDTO.getId(), productoDTO);
+            }
+        } catch (Exception e) {
+            result.reject("error.general", "Error al guardar el producto: " + e.getMessage());
+            model.addAttribute("proveedores", proveedorService.listar());
+            model.addAttribute("content", "productos/form :: content");
+            model.addAttribute("pageTitle", productoDTO.getId() == null ? "Nuevo Producto - Modacol" : "Editar Producto - Modacol");
+            return "productos/form";
         }
 
         return "redirect:/productos";

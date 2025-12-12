@@ -2,8 +2,10 @@ package com.modacol.exe.controller;
 
 import com.modacol.exe.dto.ClienteDTO;
 import com.modacol.exe.service.ClienteService;
+import jakarta.validation.Valid;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -49,14 +51,22 @@ public class ClienteViewController {
     }
 
     @PostMapping
-    public String guardar(@ModelAttribute("cliente") ClienteDTO formDto) {
+    public String guardar(@Valid @ModelAttribute("cliente") ClienteDTO formDto,
+                          BindingResult result,
+                          Model model) {
+        if (result.hasErrors()) {
+            return "clientes/form";
+        }
 
-
-
-        if (formDto.getId() == null) {
-            clienteService.crear(formDto);
-        } else {
-            clienteService.actualizar(formDto.getId(), formDto);
+        try {
+            if (formDto.getId() == null) {
+                clienteService.crear(formDto);
+            } else {
+                clienteService.actualizar(formDto.getId(), formDto);
+            }
+        } catch (Exception e) {
+            model.addAttribute("error", e.getMessage());
+            return "clientes/form";
         }
 
         return "redirect:/clientes";

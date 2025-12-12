@@ -22,35 +22,53 @@
 
                     <div class="col-md-3">
                         <label class="form-label mb-1 small">Fecha</label>
-                        <input type="date" th:field="*{fecha}" class="form-control form-control-sm" required/>
+                        <input type="date" th:field="*{fecha}" 
+                               class="form-control form-control-sm" 
+                               th:classappend="${#fields.hasErrors('fecha')} ? 'is-invalid' : ''"/>
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('fecha')}" th:errors="*{fecha}"></div>
                     </div>
 
                     <div class="col-md-3">
                         <label class="form-label mb-1 small">Nombre</label>
-                        <input type="text" th:field="*{nombre}" class="form-control form-control-sm" required/>
+                        <input type="text" th:field="*{nombre}" 
+                               class="form-control form-control-sm" 
+                               th:classappend="${#fields.hasErrors('nombre')} ? 'is-invalid' : ''"/>
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('nombre')}" th:errors="*{nombre}"></div>
                     </div>
 
                     <div class="col-md-6">
                         <label class="form-label mb-1 small">Descripción</label>
-                        <input type="text" th:field="*{descripcion}" class="form-control form-control-sm" required/>
+                        <input type="text" th:field="*{descripcion}" 
+                               class="form-control form-control-sm" 
+                               th:classappend="${#fields.hasErrors('descripcion')} ? 'is-invalid' : ''"/>
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('descripcion')}" th:errors="*{descripcion}"></div>
                     </div>
 
                     <div class="col-md-3">
                         <label class="form-label mb-1 small">Precio Unitario</label>
-                        <input type="number" step="0.01" th:field="*{precioUnitario}" class="form-control form-control-sm" required/>
+                        <input type="number" step="0.01" th:field="*{precioUnitario}" 
+                               class="form-control form-control-sm" 
+                               th:classappend="${#fields.hasErrors('precioUnitario')} ? 'is-invalid' : ''"/>
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('precioUnitario')}" th:errors="*{precioUnitario}"></div>
                     </div>
 
                     <div class="col-md-3">
                         <label class="form-label mb-1 small">Cantidad</label>
-                        <input type="number" th:field="*{cantidad}" class="form-control form-control-sm" required/>
+                        <input type="number" th:field="*{cantidad}" 
+                               class="form-control form-control-sm" 
+                               th:classappend="${#fields.hasErrors('cantidad')} ? 'is-invalid' : ''"/>
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('cantidad')}" th:errors="*{cantidad}"></div>
                     </div>
 
                     <div class="col-md-6">
                         <label class="form-label mb-1 small">Proveedor</label>
-                        <select th:field="*{proveedorId}" class="form-select form-select-sm">
+                        <select th:field="*{proveedorId}" 
+                                class="form-select form-select-sm"
+                                th:classappend="${#fields.hasErrors('proveedorId')} ? 'is-invalid' : ''">
                             <option value="">-- Seleccione Proveedor --</option>
                             <option th:each="prov : ${proveedores}" th:value="${prov.id}" th:text="${prov.razonSocial}"></option>
                         </select>
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('proveedorId')}" th:errors="*{proveedorId}"></div>
                     </div>
 
                     <div class="d-flex gap-2 justify-content-end mt-3 pt-2 border-top">

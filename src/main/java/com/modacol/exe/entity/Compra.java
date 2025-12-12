@@ -1,6 +1,7 @@
 package com.modacol.exe.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -16,32 +17,44 @@ public class Compra {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotBlank(message = "El número de compra es obligatorio")
+    @Size(max = 30, message = "El número de compra no puede exceder 30 caracteres")
     @Column(name = "numero_compra", length = 30, unique = true)
     private String numeroCompra;
 
+    @NotNull(message = "La fecha de compra es obligatoria")
     @Column(name = "fecha_compra", nullable = false)
     private LocalDate fechaCompra;
 
     @Column(name = "fecha_estimada_entrega")
     private LocalDate fechaEstimadaEntrega;
 
+    @NotNull(message = "El proveedor es obligatorio")
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "proveedor_id", referencedColumnName = "id", nullable = false)
     private Proveedor proveedor;
 
+    @NotNull(message = "El usuario es obligatorio")
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "usuario_id", referencedColumnName = "id", nullable = false)
     private Usuario usuario;
 
+    @NotBlank(message = "El tipo de documento es obligatorio")
+    @Size(max = 30, message = "El tipo de documento no puede exceder 30 caracteres")
     @Column(name = "tipo_documento", length = 30, nullable = false)
-    private String tipoDocumento; // Podrías luego migrar a Enum
+    private String tipoDocumento;
 
+    @NotBlank(message = "La forma de pago es obligatoria")
+    @Size(max = 30, message = "La forma de pago no puede exceder 30 caracteres")
     @Column(name = "forma_pago", length = 30, nullable = false)
     private String formaPago;
 
+    @NotBlank(message = "El estado es obligatorio")
+    @Size(max = 20, message = "El estado no puede exceder 20 caracteres")
     @Column(name = "estado", length = 20, nullable = false)
     private String estado;
 
+    @Size(max = 255, message = "Las observaciones no pueden exceder 255 caracteres")
     @Column(name = "observaciones", length = 255)
     private String observaciones;
 

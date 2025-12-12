@@ -23,27 +23,33 @@
                 <div class="row g-2 mb-3">
                     <div class="col-md-4">
                         <label class="form-label mb-1 small">Usuario</label>
-                        <select th:field="*{usuarioId}" class="form-select form-select-sm" required>
+                        <select th:field="*{usuarioId}" class="form-select form-select-sm" 
+                                th:classappend="${#fields.hasErrors('usuarioId')} ? 'is-invalid' : ''">
                             <option value="">-- Seleccione Usuario --</option>
                             <option th:each="u : ${usuarios}"
                                     th:value="${u.id}"
                                     th:text="${u.nombre}">
                             </option>
                         </select>
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('usuarioId')}" th:errors="*{usuarioId}"></div>
                     </div>
                     <div class="col-md-4">
                         <label class="form-label mb-1 small">Cliente</label>
-                        <select th:field="*{clienteId}" class="form-select form-select-sm" required>
+                        <select th:field="*{clienteId}" class="form-select form-select-sm" 
+                                th:classappend="${#fields.hasErrors('clienteId')} ? 'is-invalid' : ''">
                             <option value="">-- Seleccione Cliente --</option>
                             <option th:each="c : ${clientes}"
                                     th:value="${c.id}"
                                     th:text="${c.empresa}">
                             </option>
                         </select>
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('clienteId')}" th:errors="*{clienteId}"></div>
                     </div>
                     <div class="col-md-4">
                         <label class="form-label mb-1 small">Fecha</label>
-                        <input type="date" th:field="*{fechaVenta}" class="form-control form-control-sm" required/>
+                        <input type="date" th:field="*{fechaVenta}" class="form-control form-control-sm" 
+                               th:classappend="${#fields.hasErrors('fechaVenta')} ? 'is-invalid' : ''"/>
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('fechaVenta')}" th:errors="*{fechaVenta}"></div>
                     </div>
                 </div>
 

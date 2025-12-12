@@ -11,8 +11,10 @@ import com.modacol.exe.service.ClienteService;
 import com.modacol.exe.service.ProductoService;
 import com.modacol.exe.service.UsuarioService;
 import com.modacol.exe.service.VentaService;
+import jakarta.validation.Valid;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
@@ -89,12 +91,28 @@ public class VentaViewController {
     }
 
     @PostMapping
-    public String guardar(@ModelAttribute("venta") VentaDTO ventaDto) {
-
-        if (ventaDto.getId() == null) {
-            ventaService.crear(ventaDto);
-        } else {
-            ventaService.actualizar(ventaDto.getId(), ventaDto);
+    public String guardar(@Valid @ModelAttribute("venta") VentaDTO ventaDto, 
+                         BindingResult result, Model model) {
+        
+        if (result.hasErrors()) {
+            model.addAttribute("usuarios", usuarioService.listar());
+            model.addAttribute("clientes", clienteService.listar());
+            model.addAttribute("productos", productoService.listar());
+            return "ventas/form";
+        }
+        
+        try {
+            if (ventaDto.getId() == null) {
+                ventaService.crear(ventaDto);
+            } else {
+                ventaService.actualizar(ventaDto.getId(), ventaDto);
+            }
+        } catch (Exception e) {
+            result.reject("error.general", "Error al guardar la venta: " + e.getMessage());
+            model.addAttribute("usuarios", usuarioService.listar());
+            model.addAttribute("clientes", clienteService.listar());
+            model.addAttribute("productos", productoService.listar());
+            return "ventas/form";
         }
 
         return "redirect:/ventas";

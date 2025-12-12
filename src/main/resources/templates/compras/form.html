@@ -27,58 +27,77 @@
                 <div class="row g-2 mb-3">
                     <div class="col-md-3">
                         <label class="form-label mb-1 small">Número de compra</label>
-                        <input type="text" class="form-control form-control-sm" th:field="*{numeroCompra}" readonly>
+                        <input type="text" class="form-control form-control-sm" th:field="*{numeroCompra}" 
+                               th:classappend="${#fields.hasErrors('numeroCompra')} ? 'is-invalid' : ''" readonly>
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('numeroCompra')}" th:errors="*{numeroCompra}"></div>
                     </div>
                     <div class="col-md-3">
                         <label class="form-label mb-1 small">Fecha de compra</label>
-                        <input type="date" class="form-control form-control-sm" th:field="*{fechaCompra}">
+                        <input type="date" class="form-control form-control-sm" th:field="*{fechaCompra}"
+                               th:classappend="${#fields.hasErrors('fechaCompra')} ? 'is-invalid' : ''">
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('fechaCompra')}" th:errors="*{fechaCompra}"></div>
                     </div>
                     <div class="col-md-3">
                         <label class="form-label mb-1 small">Fecha estimada de entrega</label>
-                        <input type="date" class="form-control form-control-sm" th:field="*{fechaEstimadaEntrega}">
+                        <input type="date" class="form-control form-control-sm" th:field="*{fechaEstimadaEntrega}"
+                               th:classappend="${#fields.hasErrors('fechaEstimadaEntrega')} ? 'is-invalid' : ''">
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('fechaEstimadaEntrega')}" th:errors="*{fechaEstimadaEntrega}"></div>
                     </div>
                     <div class="col-md-3">
                         <label class="form-label mb-1 small">Estado</label>
-                        <select class="form-select form-select-sm" th:field="*{estado}">
+                        <select class="form-select form-select-sm" th:field="*{estado}"
+                                th:classappend="${#fields.hasErrors('estado')} ? 'is-invalid' : ''">
                             <option value="">-- Seleccionar --</option>
                             <option th:each="est : ${estados}" th:value="${est}" th:text="${est}"></option>
                         </select>
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('estado')}" th:errors="*{estado}"></div>
                     </div>
                 </div>
                 <div class="row g-2 mb-3">
                     <div class="col-md-4">
                         <label class="form-label mb-1 small">Proveedor</label>
-                        <select class="form-select form-select-sm" th:field="*{proveedorId}">
+                        <select class="form-select form-select-sm" th:field="*{proveedorId}"
+                                th:classappend="${#fields.hasErrors('proveedorId')} ? 'is-invalid' : ''">
                             <option value="">-- Seleccionar --</option>
                             <option th:each="proveedor : ${proveedores}" th:value="${proveedor.id}" th:text="${proveedor.razonSocial}"></option>
                         </select>
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('proveedorId')}" th:errors="*{proveedorId}"></div>
                     </div>
                     <div class="col-md-4">
                         <label class="form-label mb-1 small">Usuario responsable</label>
-                        <select class="form-select form-select-sm" th:field="*{usuarioId}">
+                        <select class="form-select form-select-sm" th:field="*{usuarioId}"
+                                th:classappend="${#fields.hasErrors('usuarioId')} ? 'is-invalid' : ''">
                             <option value="">-- Seleccionar --</option>
                             <option th:each="usuario : ${usuarios}" th:value="${usuario.id}" th:text="${usuario.nombre}"></option>
                         </select>
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('usuarioId')}" th:errors="*{usuarioId}"></div>
                     </div>
                     <div class="col-md-4">
                         <label class="form-label mb-1 small">Tipo de documento</label>
-                        <select class="form-select form-select-sm" th:field="*{tipoDocumento}">
+                        <select class="form-select form-select-sm" th:field="*{tipoDocumento}"
+                                th:classappend="${#fields.hasErrors('tipoDocumento')} ? 'is-invalid' : ''">
                             <option value="">-- Seleccionar --</option>
                             <option th:each="tipo : ${tiposDocumento}" th:value="${tipo}" th:text="${tipo}"></option>
                         </select>
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('tipoDocumento')}" th:errors="*{tipoDocumento}"></div>
                     </div>
                 </div>
                 <div class="row g-2 mb-3">
                     <div class="col-md-6">
                         <label class="form-label mb-1 small">Forma de pago</label>
-                        <select class="form-select form-select-sm" th:field="*{formaPago}">
+                        <select class="form-select form-select-sm" th:field="*{formaPago}"
+                                th:classappend="${#fields.hasErrors('formaPago')} ? 'is-invalid' : ''">
                             <option value="">-- Seleccionar --</option>
                             <option th:each="fp : ${formasPago}" th:value="${fp}" th:text="${fp}"></option>
                         </select>
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('formaPago')}" th:errors="*{formaPago}"></div>
                     </div>
                     <div class="col-md-6">
                         <label class="form-label mb-1 small">Observaciones</label>
-                        <textarea class="form-control form-control-sm" th:field="*{observaciones}" rows="1" placeholder="Observaciones..."></textarea>
+                        <textarea class="form-control form-control-sm" th:field="*{observaciones}" rows="1" 
+                                  th:classappend="${#fields.hasErrors('observaciones')} ? 'is-invalid' : ''" 
+                                  placeholder="Observaciones..."></textarea>
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('observaciones')}" th:errors="*{observaciones}"></div>
                     </div>
                 </div>
 
