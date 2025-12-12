@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/base :: layout(~{::title}, ~{::content})}">
+<body>
+<div th:fragment="content">
+    <div class="container-fluid px-3">
+
+        <h5 class="mb-2" th:text="${usuario.id == null ? 'Nuevo Usuario' : 'Editar Usuario'}"></h5>
+
+        <div class="card">
+            <div class="card-body p-3">
+                <form th:action="@{/usuarios}" th:object="${usuario}" method="post" class="row g-2">
+                    <input type="hidden" th:field="*{id}"/>
+
+                    <!-- NOMBRE -->
+                    <div class="col-md-6">
+                        <label class="form-label form-label-sm">Nombre</label>
+                        <input type="text" class="form-control form-control-sm"
+                               th:classappend="${#fields.hasErrors('nombre')} ? 'is-invalid'"
+                               th:field="*{nombre}" required>
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('nombre')}" th:errors="*{nombre}"></div>
+                    </div>
+
+                    <!-- CORREO -->
+                    <div class="col-md-6">
+                        <label class="form-label form-label-sm">Correo</label>
+                        <input type="email" class="form-control form-control-sm"
+                               th:classappend="${#fields.hasErrors('correo')} ? 'is-invalid'"
+                               th:field="*{correo}" required>
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('correo')}" th:errors="*{correo}"></div>
+                    </div>
+
+                    <!-- PASSWORD -->
+                    <div class="col-md-6" th:if="${usuario.id == null}">
+                        <label class="form-label form-label-sm">Password</label>
+                        <input type="password" class="form-control form-control-sm"
+                               th:classappend="${#fields.hasErrors('password')} ? 'is-invalid'"
+                               th:field="*{password}" required>
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></div>
+                    </div>
+
+                    <!-- ROL -->
+                    <div class="col-md-6">
+                        <label class="form-label form-label-sm">Rol</label>
+                        <select class="form-select form-select-sm"
+                                th:classappend="${#fields.hasErrors('rolId')} ? 'is-invalid'"
+                                th:field="*{rolId}" required>
+                            <option value="">-- Selecciona un rol --</option>
+                            <option th:each="rol : ${roles}" th:value="${rol.id}" th:text="${rol.tipo}"></option>
+                        </select>
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('rolId')}" th:errors="*{rolId}"></div>
+                    </div>
+
+                    <!-- BOTONES -->
+                    <div class="col-12 mt-3">
+                        <button type="submit" class="btn btn-success btn-sm me-2">
+                            <i class="bi bi-check"></i> Guardar
+                        </button>
+                        <a th:href="@{/usuarios}" class="btn btn-secondary btn-sm">
+                            <i class="bi bi-arrow-left"></i> Cancelar
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+    </div>
+</div>
+</body>
+</html>

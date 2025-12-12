@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/base :: layout(~{::title}, ~{::content})}">
+<body>
+<div th:fragment="content" class="container mt-4">
+
+    <!-- Título -->
+    <h2 th:text="${venta.id == null ? 'Nueva Venta' : 'Editar Venta'}"></h2>
+
+    <form th:action="@{/ventas}" th:object="${venta}" method="post">
+        <input type="hidden" th:field="*{id}"/>
+
+        <!-- CABECERA -->
+        <div class="mb-3">
+            <label class="form-label">Usuario</label>
+            <select th:field="*{usuarioId}" class="form-select" required>
+                <option value="">-- Seleccione Usuario --</option>
+                <option th:each="u : ${usuarios}"
+                        th:value="${u.id}"
+                        th:text="${u.nombre}">
+                </option>
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Cliente</label>
+            <select th:field="*{clienteId}" class="form-select" required>
+                <option value="">-- Seleccione Cliente --</option>
+                <option th:each="c : ${clientes}"
+                        th:value="${c.id}"
+                        th:text="${c.empresa}">
+                </option>
+            </select>
+        </div>
+
+        <!-- Fecha (campo en VentaDTO: fechaVenta) -->
+        <div class="mb-3">
+            <label class="form-label">Fecha</label>
+            <input type="date" th:field="*{fechaVenta}" class="form-control" required/>
+        </div>
+
+        <!-- DETALLES -->
+        <h4>Detalles</h4>
+        <table class="table table-bordered">
+            <thead class="table-dark">
+            <tr>
+                <th>Producto</th>
+                <th style="width: 120px;">Cantidad</th>
+                <th style="width: 150px;">Precio Unitario</th>
+                <th style="width: 150px;">Subtotal</th>
+            </tr>
+            </thead>
+            <tbody id="detalles-body">
+            <tr th:each="detalle, iterStat : *{detalles}">
+                <td>
+                    <select th:field="*{detalles[__${iterStat.index}__].productoId}"
+                            class="form-select producto-select">
+                        <option value="">-- Producto --</option>
+                        <option th:each="p : ${productos}"
+                                th:value="${p.id}"
+                                th:text="${p.nombre}"
+                                th:attr="data-precio=${p.precioUnitario}">
+                        </option>
+                    </select>
+                </td>
+                <td>
+                    <input type="number" min="1"
+                           th:field="*{detalles[__${iterStat.index}__].cantidad}"
+                           class="form-control cantidad-input"/>
+                </td>
+                <td>
+                    <!-- campo en DetalleVentaDTO: precioUnitario -->
+                    <input type="number" step="0.01"
+                           th:field="*{detalles[__${iterStat.index}__].precioUnitario}"
+                           class="form-control precio-unitario"
+                           readonly/>
+                </td>
+                <td>
+                    <!-- campo en DetalleVentaDTO: subtotal -->
+                    <input type="number" step="0.01"
+                           th:field="*{detalles[__${iterStat.index}__].subtotal}"
+                           class="form-control subtotal"
+                           readonly/>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+
+        <!-- TOTAL (campo en VentaDTO: total) -->
+        <div class="mb-3 text-end">
+            <label class="form-label"><strong>Total: </strong></label>
+            <input type="number" step="0.01" th:field="*{total}"
+                   class="form-control d-inline-block text-end fw-bold"
+                   style="max-width: 200px;" readonly/>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Guardar</button>
+        <a th:href="@{/ventas}" class="btn btn-secondary">Cancelar</a>
+    </form>
+
+    <!-- SCRIPT: calcula subtotales y total en tiempo real -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+
+            function actualizarSubtotal(fila) {
+                const precioInput = fila.querySelector('.precio-unitario');
+                const cantidadInput = fila.querySelector('.cantidad-input');
+                const subtotalInput = fila.querySelector('.subtotal');
+
+                const precio = parseFloat(precioInput.value) || 0;
+                const cantidad = parseInt(cantidadInput.value) || 0;
+
+                subtotalInput.value = (precio * cantidad).toFixed(2);
+            }
+
+            function actualizarTotal() {
+                let total = 0;
+                document.querySelectorAll('#detalles-body tr').forEach(tr => {
+                    total += parseFloat(tr.querySelector('.subtotal').value) || 0;
+                });
+
+                // el input total está bindeado a *{total}, así que su name será "total"
+                const totalInput = document.querySelector('input[name="total"]');
+                if (totalInput) {
+                    totalInput.value = total.toFixed(2);
+                }
+            }
+
+            // Cuando cambia el producto, cargamos su precio unitario desde data-precio
+            document.querySelectorAll('.producto-select').forEach(select => {
+                select.addEventListener('change', e => {
+                    const fila = e.target.closest('tr');
+                    const option = e.target.selectedOptions[0];
+                    const precio = option ? (option.dataset.precio || 0) : 0;
+
+                    fila.querySelector('.precio-unitario').value = precio;
+                    actualizarSubtotal(fila);
+                    actualizarTotal();
+                });
+            });
+
+            // Cuando cambia la cantidad
+            document.querySelectorAll('.cantidad-input').forEach(input => {
+                input.addEventListener('input', e => {
+                    const fila = e.target.closest('tr');
+                    actualizarSubtotal(fila);
+                    actualizarTotal();
+                });
+            });
+
+            // Recalcular todo al cargar (por si vienes de editar)
+            document.querySelectorAll('#detalles-body tr').forEach(fila => {
+                actualizarSubtotal(fila);
+            });
+            actualizarTotal();
+        });
+    </script>
+</div>
+</body>
+</html>

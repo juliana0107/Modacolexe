@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/base :: layout(~{::title}, ~{::content})}">
+
+<body>
+<div th:fragment="content" class="container mt-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-2">
+        <div>
+            <h5 class="mb-0">
+                <i class="bi bi-truck me-1"></i>
+                Proveedores
+            </h5>
+        </div>
+        <a th:href="@{/proveedores/new}" class="btn btn-primary btn-sm">
+            <i class="bi bi-plus"></i>
+            Nuevo
+        </a>
+    </div>
+
+    <div class="card border-0 bg-transparent mb-2">
+        <div class="card-body py-1">
+            <form th:action="@{/proveedores}" method="get">
+                <div class="row g-2">
+                    <div class="col-12 col-md-4">
+                        <input type="text" class="form-control form-control-sm" id="razonSocial" name="razonSocial" 
+                               th:value="${param.razonSocial}" placeholder="Razón social">
+                    </div>
+                    <div class="col-12 col-md-3">
+                        <input type="text" class="form-control form-control-sm" id="identificacion" name="identificacion" 
+                               th:value="${param.identificacion}" placeholder="Identificación">
+                    </div>
+                    <div class="col-12 col-md-3">
+                        <input type="text" class="form-control form-control-sm" id="correo" name="correo" 
+                               th:value="${param.correo}" placeholder="Correo">
+                    </div>
+                    <div class="col-12 col-md-2">
+                        <div class="d-flex gap-1">
+                            <button type="submit" class="btn btn-primary btn-sm flex-fill">
+                                <i class="bi bi-search"></i>
+                            </button>
+                            <a th:href="@{/proveedores}" class="btn btn-secondary btn-sm flex-fill">
+                                <i class="bi bi-x-circle"></i>
+                            </a>
+                            <a href="/reportes?tipo=proveedores" class="btn btn-success btn-sm flex-fill">
+                                <i class="bi bi-file-earmark-excel"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body p-0">
+            <div class="table-responsive" style="max-height: 500px; overflow-y: auto;">
+                <table class="table table-striped table-hover table-sm mb-0">
+                    <thead class="table-dark">
+                    <tr>
+                        <th>ID</th>
+                        <th>Razón Social</th>
+                        <th>Identificación</th>
+                        <th>Dirección</th>
+                        <th>Correo</th>
+                        <th>Contacto</th>
+                        <th>Acciones</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="p : ${proveedoresList}">
+                        <td th:text="${p.id}"></td>
+                        <td th:text="${p.razonSocial}"></td>
+                        <td th:text="${p.identificacion}"></td>
+                        <td th:text="${p.direccion}"></td>
+                        <td th:text="${p.correo}"></td>
+                        <td th:text="${p.contacto}"></td>
+                        <td class="text-center">
+                            <a th:href="@{/proveedores/edit/{id}(id=${p.id})}" class="btn btn-primary btn-sm me-1">
+                                <i class="bi bi-pencil-square"></i>
+                            </a>
+                            <a th:href="@{/proveedores/delete/{id}(id=${p.id})}" class="btn btn-danger btn-sm"
+                               onclick="return confirm('¿Eliminar proveedor?');">
+                                <i class="bi bi-trash"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(proveedoresList)}">
+                        <td colspan="7" class="text-center text-muted">
+                            No hay proveedores registrados.
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="card-footer py-2">
+                <div class="d-flex justify-content-between align-items-center">
+                    <small class="text-muted">Total: <span th:text="${#lists.size(proveedoresList)}">0</span> proveedores</small>
+                    <nav>
+                        <ul class="pagination pagination-sm mb-0">
+                            <li class="page-item disabled"><span class="page-link">Anterior</span></li>
+                            <li class="page-item active"><span class="page-link">1</span></li>
+                            <li class="page-item disabled"><span class="page-link">Siguiente</span></li>
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function generarReporteProveedores() {
+    window.location.href = '/reportes?tipo=proveedores';
+}
+</script>
+
+</body>
+</html>

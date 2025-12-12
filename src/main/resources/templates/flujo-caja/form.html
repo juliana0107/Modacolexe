@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es"
+      th:replace="~{layout/base :: layout(~{::title}, ~{::content})}">
+<head>
+    <title>Flujo de Caja - Modacol</title>
+</head>
+<body>
+<div th:fragment="content" class="container-fluid px-2">
+
+    <div class="d-flex justify-content-between align-items-center mb-2">
+        <h5 class="mb-0"
+            th:text="${flujo.id == null ? 'Nuevo Movimiento de Caja' : 'Editar Movimiento de Caja'}">
+            Flujo de Caja
+        </h5>
+        <a th:href="@{/flujo-caja}" class="btn btn-secondary btn-sm">
+            <i class="bi bi-arrow-left"></i> Volver
+        </a>
+    </div>
+
+    <!-- Mensajes de error simples (si usas BindingResult) -->
+    <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <span th:text="${error}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+
+    <form th:action="@{/flujo-caja}" method="post" th:object="${flujo}">
+        <input type="hidden" th:field="*{id}"/>
+
+        <div class="card">
+            <div class="card-body p-3">
+
+                <div class="row g-2 mb-3">
+                    <!-- Fecha -->
+                    <div class="col-md-3">
+                        <label class="form-label">Fecha *</label>
+                        <input type="date"
+                               class="form-control form-control-sm"
+                               th:field="*{fecha}"
+                               required/>
+                    </div>
+
+                    <!-- Tipo -->
+                    <div class="col-md-3">
+                        <label class="form-label">Tipo *</label>
+                        <select class="form-select form-select-sm"
+                                th:field="*{tipo}" required>
+                            <option value="">-- Seleccionar --</option>
+                            <option value="INGRESO">Ingreso</option>
+                            <option value="EGRESO">Egreso</option>
+                        </select>
+                    </div>
+
+                    <!-- Monto -->
+                    <div class="col-md-3">
+                        <label class="form-label">Monto *</label>
+                        <input type="number"
+                               step="0.01"
+                               min="0"
+                               class="form-control form-control-sm text-end"
+                               th:field="*{monto}"
+                               placeholder="0.00"
+                               required/>
+                    </div>
+
+                    <!-- Origen manual -->
+                    <div class="col-md-3">
+                        <label class="form-label">Asociado a</label>
+                        <input type="text"
+                               class="form-control form-control-sm"
+                               th:value="${flujo.ventaId != null ? 'Venta #' + flujo.ventaId :
+                                         (flujo.compraId != null ? 'Compra #' + flujo.compraId : 'Movimiento manual')}"
+                               disabled/>
+                    </div>
+                </div>
+
+                <div class="row g-2 mb-3">
+                    <div class="col-12">
+                        <label class="form-label">Descripción</label>
+                        <textarea class="form-control form-control-sm"
+                                  th:field="*{descripcion}"
+                                  rows="2"
+                                  placeholder="Ej: Ajuste manual, gasto menor, ingreso extra, etc."></textarea>
+                    </div>
+                </div>
+
+                <div class="alert alert-info py-2">
+                    <small>
+                        <i class="bi bi-info-circle"></i>
+                        Si el movimiento fue generado automáticamente por una venta o compra,
+                        solo deberías editarlo si necesitas corregir un error.
+                    </small>
+                </div>
+
+            </div>
+
+            <div class="card-footer py-2">
+                <div class="d-flex justify-content-between align-items-center">
+                    <small class="text-muted">
+                        <i class="bi bi-shield-check"></i>
+                        Revisa el tipo (INGRESO/EGRESO) y el monto antes de guardar.
+                    </small>
+                    <div>
+                        <button type="submit" class="btn btn-success btn-sm">
+                            <i class="bi bi-check"></i> Guardar
+                        </button>
+                        <a th:href="@{/flujo-caja}" class="btn btn-secondary btn-sm ms-2">
+                            Cancelar
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+</body>
+</html>
