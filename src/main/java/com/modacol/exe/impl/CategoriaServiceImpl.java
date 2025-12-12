@@ -32,7 +32,7 @@ public class CategoriaServiceImpl implements CategoriaService {
 
     @Override
     public List<CategoriaDTO> listar() {
-        return categoriaRepository.findAll()
+        return categoriaRepository.findAllByOrderByIdAsc()
                 .stream()
                 .map(this::convertToDto)
                 .collect(Collectors.toList());

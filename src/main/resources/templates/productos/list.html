@@ -3,18 +3,11 @@
       th:replace="~{layout/base :: layout(~{::title}, ~{::content})}">
 
 <body>
-<div th:fragment="content" class="container mt-4">
-
+<div th:fragment="content" class="container-fluid px-2">
     <div class="d-flex justify-content-between align-items-center mb-2">
-        <div>
-            <h5 class="mb-0">
-                <i class="bi bi-box-seam-fill me-1"></i>
-                Productos
-            </h5>
-        </div>
+        <h5 class="mb-0"><i class="bi bi-box-seam-fill me-1"></i>Productos</h5>
         <a th:href="@{/productos/new}" class="btn btn-primary btn-sm">
-            <i class="bi bi-plus"></i>
-            Nuevo
+            <i class="bi bi-plus"></i> Nuevo
         </a>
     </div>
 
@@ -22,25 +15,23 @@
         <div class="card-body py-1">
             <form th:action="@{/productos}" method="get">
                 <div class="row g-2">
-                    <div class="col-12 col-md-3">
-                        <input type="text" class="form-control form-control-sm" id="nombre" name="nombre" 
-                               th:value="${param.nombre}" placeholder="Nombre">
+                    <div class="col-md-3">
+                        <input type="text" class="form-control form-control-sm" name="nombre" 
+                               th:value="${param.nombre}" placeholder="Nombre"/>
                     </div>
-                    <div class="col-12 col-md-3">
-                        <input type="text" class="form-control form-control-sm" id="descripcion" name="descripcion" 
-                               th:value="${param.descripcion}" placeholder="Descripción">
+                    <div class="col-md-3">
+                        <input type="text" class="form-control form-control-sm" name="descripcion" 
+                               th:value="${param.descripcion}" placeholder="Descripción"/>
                     </div>
-                    <div class="col-12 col-md-4">
-                        <select class="form-select form-select-sm" id="proveedorId" name="proveedorId">
+                    <div class="col-md-4">
+                        <select class="form-select form-select-sm" name="proveedorId">
                             <option value="">Todos los proveedores</option>
-                            <option th:each="proveedor : ${proveedores}" 
-                                    th:value="${proveedor.id}" 
+                            <option th:each="proveedor : ${proveedores}" th:value="${proveedor.id}" 
                                     th:text="${proveedor.razonSocial}"
-                                    th:selected="${param.proveedorId != null && param.proveedorId[0] == proveedor.id.toString()}">
-                            </option>
+                                    th:selected="${param.proveedorId != null && param.proveedorId[0] == proveedor.id.toString()}"></option>
                         </select>
                     </div>
-                    <div class="col-12 col-md-2">
+                    <div class="col-md-2">
                         <div class="d-flex gap-1">
                             <button type="submit" class="btn btn-primary btn-sm flex-fill">
                                 <i class="bi bi-search"></i>

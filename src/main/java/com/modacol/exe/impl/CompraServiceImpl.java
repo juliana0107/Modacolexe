@@ -84,7 +84,7 @@ public class CompraServiceImpl implements CompraService {
     @Override
     @Transactional(readOnly = true)
     public List<CompraDTO> listar() {
-        return compraRepository.findAll()
+        return compraRepository.findAllByOrderByIdAsc()
                 .stream()
                 .map(this::convertToDto)
                 .toList();
@@ -322,7 +322,11 @@ public class CompraServiceImpl implements CompraService {
     }
 
     private String generarNumeroCompra() {
-        long count = compraRepository.count() + 1;
-        return String.format("OC-%06d", count);
+        String ultimoNumero = compraRepository.findTopByOrderByNumeroCompraDesc()
+                .map(Compra::getNumeroCompra)
+                .orElse("OC-000000");
+        
+        int siguienteNumero = Integer.parseInt(ultimoNumero.substring(3)) + 1;
+        return String.format("OC-%06d", siguienteNumero);
     }
 }

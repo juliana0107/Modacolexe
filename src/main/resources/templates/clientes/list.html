@@ -2,17 +2,11 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="es"
       th:replace="~{layout/base :: layout(~{::title}, ~{::content})}">
 <body>
-<div th:fragment="content" class="container mt-4">
+<div th:fragment="content" class="container-fluid px-2">
     <div class="d-flex justify-content-between align-items-center mb-2">
-        <div>
-            <h5 class="mb-0">
-                <i class="bi bi-person-badge-fill me-1"></i>
-                Clientes
-            </h5>
-        </div>
+        <h5 class="mb-0"><i class="bi bi-person-badge-fill me-1"></i>Clientes</h5>
         <a th:href="@{/clientes/new}" class="btn btn-primary btn-sm">
-            <i class="bi bi-plus"></i>
-            Nuevo
+            <i class="bi bi-plus"></i> Nuevo
         </a>
     </div>
 
@@ -20,19 +14,19 @@
         <div class="card-body py-1">
             <form th:action="@{/clientes}" method="get">
                 <div class="row g-2">
-                    <div class="col-12 col-md-3">
-                        <input type="text" class="form-control form-control-sm" id="empresa" name="empresa" 
-                               th:value="${param.empresa}" placeholder="Empresa">
+                    <div class="col-md-3">
+                        <input type="text" class="form-control form-control-sm" name="empresa" 
+                               th:value="${param.empresa}" placeholder="Empresa"/>
                     </div>
-                    <div class="col-12 col-md-3">
-                        <input type="text" class="form-control form-control-sm" id="nombre" name="nombre" 
-                               th:value="${param.nombre}" placeholder="Nombre">
+                    <div class="col-md-3">
+                        <input type="text" class="form-control form-control-sm" name="nombre" 
+                               th:value="${param.nombre}" placeholder="Nombre"/>
                     </div>
-                    <div class="col-12 col-md-4">
-                        <input type="text" class="form-control form-control-sm" id="identificacion" name="identificacion" 
-                               th:value="${param.identificacion}" placeholder="Identificación">
+                    <div class="col-md-4">
+                        <input type="text" class="form-control form-control-sm" name="identificacion" 
+                               th:value="${param.identificacion}" placeholder="Identificación"/>
                     </div>
-                    <div class="col-12 col-md-2">
+                    <div class="col-md-2">
                         <div class="d-flex gap-1">
                             <button type="submit" class="btn btn-primary btn-sm flex-fill">
                                 <i class="bi bi-search"></i>

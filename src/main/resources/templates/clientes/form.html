@@ -1,50 +1,57 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
       th:replace="~{layout/base :: layout(~{::title}, ~{::content})}" lang="es">
-<head>
-</head>
 <body>
 <div th:fragment="content">
-    <div class="container-fluid px-3">
-        <h5 class="mb-2" th:text="${cliente.id == null ? 'Nuevo Cliente' : 'Editar Cliente'}"></h5>
+    <div class="container-fluid px-2">
+        <div class="d-flex align-items-center mb-3">
+            <div class="rounded-circle me-3 d-flex align-items-center justify-content-center" 
+                 style="width: 50px; height: 50px; background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); color: white;">
+                <i class="bi bi-person-badge-fill fs-5"></i>
+            </div>
+            <div>
+                <h5 class="mb-1" th:text="${cliente.id == null ? 'Nuevo Cliente' : 'Editar Cliente'}">Formulario de Cliente</h5>
+                <small class="text-muted">Gestión de clientes</small>
+            </div>
+        </div>
 
         <div class="card">
-            <div class="card-body p-3">
+            <div class="card-body p-2">
                 <form th:action="@{/clientes}" th:object="${cliente}" method="post" class="row g-2">
-                    <input type="hidden" th:field="*{id}" />
+                    <input type="hidden" th:field="*{id}"/>
 
                     <div class="col-md-6">
-                        <label class="form-label form-label-sm">Empresa</label>
-                        <input type="text" class="form-control form-control-sm" th:field="*{empresa}" placeholder="Empresa">
+                        <label class="form-label mb-1 small">Empresa</label>
+                        <input type="text" th:field="*{empresa}" class="form-control form-control-sm"/>
                     </div>
 
                     <div class="col-md-6">
-                        <label class="form-label form-label-sm">Nombre</label>
-                        <input type="text" class="form-control form-control-sm" th:field="*{nombre}" placeholder="Nombre" required>
+                        <label class="form-label mb-1 small">Nombre</label>
+                        <input type="text" th:field="*{nombre}" class="form-control form-control-sm" required/>
                     </div>
 
                     <div class="col-md-4">
-                        <label class="form-label form-label-sm">Identificación</label>
-                        <input type="text" class="form-control form-control-sm" th:field="*{identificacion}" placeholder="ID" required>
+                        <label class="form-label mb-1 small">Identificación</label>
+                        <input type="text" th:field="*{identificacion}" class="form-control form-control-sm" required/>
                     </div>
 
                     <div class="col-md-4">
-                        <label class="form-label form-label-sm">Contacto</label>
-                        <input type="text" class="form-control form-control-sm" th:field="*{contacto}" placeholder="Teléfono">
+                        <label class="form-label mb-1 small">Contacto</label>
+                        <input type="text" th:field="*{contacto}" class="form-control form-control-sm"/>
                     </div>
 
                     <div class="col-md-4">
-                        <label class="form-label form-label-sm">Correo</label>
-                        <input type="email" class="form-control form-control-sm" th:field="*{correo}" placeholder="Email">
+                        <label class="form-label mb-1 small">Correo</label>
+                        <input type="email" th:field="*{correo}" class="form-control form-control-sm"/>
                     </div>
 
-                    <div class="col-12 mt-3">
-                        <button type="submit" class="btn btn-success btn-sm me-2">
-                            <i class="bi bi-check"></i> Guardar
-                        </button>
-                        <a th:href="@{/clientes}" class="btn btn-secondary btn-sm">
-                            <i class="bi bi-arrow-left"></i> Cancelar
+                    <div class="d-flex gap-2 justify-content-end mt-3 pt-2 border-top">
+                        <a th:href="@{/clientes}" class="btn btn-outline-secondary btn-sm">
+                            <i class="bi bi-x-circle me-1"></i>Cancelar
                         </a>
+                        <button type="submit" class="btn btn-success btn-sm">
+                            <i class="bi bi-check-circle me-1"></i>Guardar Cliente
+                        </button>
                     </div>
                 </form>
             </div>

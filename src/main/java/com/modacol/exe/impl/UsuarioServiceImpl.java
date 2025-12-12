@@ -56,7 +56,7 @@ public class UsuarioServiceImpl implements UsuarioService {
     @Override
     @Transactional(readOnly = true)
     public List<UsuarioDTO> listar() {
-        return usuarioRepository.findAll()
+        return usuarioRepository.findAllByOrderByIdAsc()
                 .stream()
                 .map(this::convertToDto)
                 .toList();

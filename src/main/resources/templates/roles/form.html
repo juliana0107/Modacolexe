@@ -2,30 +2,43 @@
 <html xmlns:th="http://www.thymeleaf.org"
       th:replace="~{layout/base :: layout(~{::title}, ~{::content})}">
 <body>
-<div th:fragment="content">
-    <div class="container mt-4">
-        <h1 th:text="${rol.id == null ? 'Nuevo Rol' : 'Editar Rol'}"></h1>
+<div th:fragment="content" class="container-fluid px-2">
 
-    <form th:action="@{/roles}" th:object="${rol}" method="post" class="card p-4 shadow-sm">
-        <input type="hidden" th:field="*{id}"/>
-
-        <div class="mb-3">
-            <label class="form-label">Tipo de Rol</label>
-            <input type="text" class="form-control"
-                   th:field="*{tipo}" placeholder="Ej: ADMIN, OPERATIVO, FINANCIERO" required>
+    <div class="d-flex align-items-center mb-3">
+        <div class="rounded-circle me-3 d-flex align-items-center justify-content-center" 
+             style="width: 50px; height: 50px; background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); color: white;">
+            <i class="bi bi-shield-lock-fill fs-5"></i>
         </div>
-
-        <div class="d-flex gap-2">
-            <button type="submit" class="btn btn-success">
-                <i class="bi bi-check-lg me-1"></i> Guardar
-            </button>
-
-            <a th:href="@{/roles}" class="btn btn-secondary">
-                <i class="bi bi-arrow-left"></i> Cancelar
-            </a>
+        <div>
+            <h5 class="mb-1" th:text="${rol.id == null ? 'Nuevo Rol' : 'Editar Rol'}">Formulario de Rol</h5>
+            <small class="text-muted">Gestión de roles de usuario</small>
         </div>
-    </form>
     </div>
- </div>
+
+    <div class="card">
+        <div class="card-body p-3">
+            <form th:action="@{/roles}" th:object="${rol}" method="post">
+                <input type="hidden" th:field="*{id}"/>
+
+                <div class="mb-3">
+                    <label class="form-label mb-1 small">Tipo de Rol</label>
+                    <input type="text" class="form-control form-control-sm"
+                           th:field="*{tipo}" placeholder="Ej: ADMIN, OPERATIVO, FLUJO_DE_CAJA" required>
+                    <small class="text-muted">Ingrese el tipo de rol en mayúsculas</small>
+                </div>
+
+                <div class="d-flex gap-2 justify-content-end pt-2 border-top">
+                    <a th:href="@{/roles}" class="btn btn-outline-secondary btn-sm">
+                        <i class="bi bi-x-circle me-1"></i>Cancelar
+                    </a>
+                    <button type="submit" class="btn btn-success btn-sm">
+                        <i class="bi bi-check-circle me-1"></i>Guardar Rol
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+</div>
 </body>
 </html>

@@ -2,45 +2,34 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="es"
       th:replace="~{layout/base :: layout(~{::title}, ~{::content})}">
 <body>
-<div th:fragment="content" class="container mt-4">
-
+<div th:fragment="content" class="container-fluid px-2">
     <div class="d-flex justify-content-between align-items-center mb-2">
-        <div>
-            <h5 class="mb-0">
-                <i class="bi bi-people-fill me-1"></i>
-                Usuarios
-            </h5>
-        </div>
+        <h5 class="mb-0"><i class="bi bi-people-fill me-1"></i>Usuarios</h5>
         <a th:href="@{/usuarios/new}" class="btn btn-primary btn-sm">
-            <i class="bi bi-plus"></i>
-            Nuevo
+            <i class="bi bi-plus"></i> Nuevo
         </a>
     </div>
-
 
     <div class="card border-0 bg-transparent mb-2">
         <div class="card-body py-1">
             <form th:action="@{/usuarios}" method="get">
                 <div class="row g-2">
-                    <div class="col-12 col-md-4">
-                        <input type="text" class="form-control form-control-sm" id="nombre" name="nombre" 
-                               th:value="${param.nombre}" placeholder="Buscar por nombre">
+                    <div class="col-md-4">
+                        <input type="text" class="form-control form-control-sm" name="nombre" 
+                               th:value="${param.nombre}" placeholder="Buscar por nombre"/>
                     </div>
-                    <div class="col-12 col-md-4">
-                        <input type="text" class="form-control form-control-sm" id="correo" name="correo" 
-                               th:value="${param.correo}" placeholder="Buscar por correo">
+                    <div class="col-md-4">
+                        <input type="text" class="form-control form-control-sm" name="correo" 
+                               th:value="${param.correo}" placeholder="Buscar por correo"/>
                     </div>
-                    <div class="col-12 col-md-2">
-                        <select class="form-select form-select-sm" id="rolId" name="rolId">
+                    <div class="col-md-2">
+                        <select class="form-select form-select-sm" name="rolId">
                             <option value="">Todos los roles</option>
-                            <option th:each="rol : ${roles}" 
-                                    th:value="${rol.id}" 
-                                    th:text="${rol.tipo}"
-                                    th:selected="${param.rolId != null && param.rolId[0] == rol.id.toString()}">
-                            </option>
+                            <option th:each="rol : ${roles}" th:value="${rol.id}" th:text="${rol.tipo}"
+                                    th:selected="${param.rolId != null && param.rolId[0] == rol.id.toString()}"></option>
                         </select>
                     </div>
-                    <div class="col-12 col-md-2">
+                    <div class="col-md-2">
                         <div class="d-flex gap-1">
                             <button type="submit" class="btn btn-primary btn-sm flex-fill">
                                 <i class="bi bi-search"></i>
@@ -48,9 +37,9 @@
                             <a th:href="@{/usuarios}" class="btn btn-secondary btn-sm flex-fill">
                                 <i class="bi bi-x-circle"></i>
                             </a>
-                                <a href="/reportes?tipo=usuarios" class="btn btn-success btn-sm flex-fill">
-                                    <i class="bi bi-file-earmark-excel"></i>
-                                </a>
+                            <a href="/reportes?tipo=usuarios" class="btn btn-success btn-sm flex-fill">
+                                <i class="bi bi-file-earmark-excel"></i>
+                            </a>
                         </div>
                     </div>
                 </div>

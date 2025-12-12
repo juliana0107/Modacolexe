@@ -43,9 +43,9 @@
                     <span>Dashboard</span>
                 </a>
 
-                <!-- Categorías - ADMIN, OPERATIVO, FLUJO_DE_CAJA -->
+                <!-- Categorías - ADMIN, FLUJO_DE_CAJA -->
                 <a th:href="@{/categorias}" 
-                   th:if="${userRole == 'ADMIN' or userRole == 'OPERATIVO' or userRole == 'FLUJO_DE_CAJA'}"
+                   th:if="${userRole == 'ADMIN' or userRole == 'FLUJO_DE_CAJA'}"
                    class="list-group-item list-group-item-action bg-transparent text-white sidebar-item">
                     <i class="bi bi-tags-fill me-3"></i>
                     <span>Categorías</span>
@@ -67,9 +67,9 @@
                     <span>Clientes</span>
                 </a>
 
-                <!-- Compras - Solo ADMIN -->
+                <!-- Compras - ADMIN, FLUJO_DE_CAJA -->
                 <a th:href="@{/compras}" 
-                   th:if="${userRole == 'ADMIN'}"
+                   th:if="${userRole == 'ADMIN' or userRole == 'FLUJO_DE_CAJA'}"
                    class="list-group-item list-group-item-action bg-transparent text-white sidebar-item">
                     <i class="bi bi-cart-check-fill me-3"></i>
                     <span>Compras</span>
@@ -83,17 +83,17 @@
                     <span>Flujo de Caja</span>
                 </a>
 
-                <!-- Productos - Solo ADMIN -->
+                <!-- Productos - ADMIN, OPERATIVO -->
                 <a th:href="@{/productos}" 
-                   th:if="${userRole == 'ADMIN'}"
+                   th:if="${userRole == 'ADMIN' or userRole == 'OPERATIVO'}"
                    class="list-group-item list-group-item-action bg-transparent text-white sidebar-item">
                     <i class="bi bi-box-seam-fill me-3"></i>
                     <span>Productos</span>
                 </a>
 
-                <!-- Proveedores - Solo ADMIN -->
+                <!-- Proveedores - ADMIN, OPERATIVO -->
                 <a th:href="@{/proveedores}" 
-                   th:if="${userRole == 'ADMIN'}"
+                   th:if="${userRole == 'ADMIN' or userRole == 'OPERATIVO'}"
                    class="list-group-item list-group-item-action bg-transparent text-white sidebar-item">
                     <i class="bi bi-truck-front-fill me-3"></i>
                     <span>Proveedores</span>
@@ -107,9 +107,9 @@
                     <span>Roles</span>
                 </a>
 
-                <!-- Ventas - ADMIN, OPERATIVO -->
+                <!-- Ventas - ADMIN, FLUJO_DE_CAJA -->
                 <a th:href="@{/ventas}" 
-                   th:if="${userRole == 'ADMIN' or userRole == 'OPERATIVO'}"
+                   th:if="${userRole == 'ADMIN' or userRole == 'FLUJO_DE_CAJA'}"
                    class="list-group-item list-group-item-action bg-transparent text-white sidebar-item">
                     <i class="bi bi-receipt-cutoff me-3"></i>
                     <span>Ventas</span>
@@ -149,7 +149,7 @@
                         <i class="bi bi-speedometer2 me-3"></i>Dashboard
                     </a>
                     <a th:href="@{/categorias}" 
-                       th:if="${userRole == 'ADMIN' or userRole == 'OPERATIVO' or userRole == 'FLUJO_DE_CAJA'}"
+                       th:if="${userRole == 'ADMIN' or userRole == 'FLUJO_DE_CAJA'}"
                        class="list-group-item list-group-item-action bg-transparent text-white sidebar-item">
                         <i class="bi bi-tags-fill me-3"></i>Categorías
                     </a>
@@ -164,7 +164,7 @@
                         <i class="bi bi-people-fill me-3"></i>Clientes
                     </a>
                     <a th:href="@{/compras}" 
-                       th:if="${userRole == 'ADMIN'}"
+                       th:if="${userRole == 'ADMIN' or userRole == 'FLUJO_DE_CAJA'}"
                        class="list-group-item list-group-item-action bg-transparent text-white sidebar-item">
                         <i class="bi bi-cart-check-fill me-3"></i>Compras
                     </a>
@@ -174,12 +174,12 @@
                         <i class="bi bi-cash-coin me-3"></i>Flujo de Caja
                     </a>
                     <a th:href="@{/productos}" 
-                       th:if="${userRole == 'ADMIN'}"
+                       th:if="${userRole == 'ADMIN' or userRole == 'OPERATIVO'}"
                        class="list-group-item list-group-item-action bg-transparent text-white sidebar-item">
                         <i class="bi bi-box-seam-fill me-3"></i>Productos
                     </a>
                     <a th:href="@{/proveedores}" 
-                       th:if="${userRole == 'ADMIN'}"
+                       th:if="${userRole == 'ADMIN' or userRole == 'OPERATIVO'}"
                        class="list-group-item list-group-item-action bg-transparent text-white sidebar-item">
                         <i class="bi bi-truck-front-fill me-3"></i>Proveedores
                     </a>
@@ -189,7 +189,7 @@
                         <i class="bi bi-shield-lock-fill me-3"></i>Roles
                     </a>
                     <a th:href="@{/ventas}" 
-                       th:if="${userRole == 'ADMIN' or userRole == 'OPERATIVO'}"
+                       th:if="${userRole == 'ADMIN' or userRole == 'FLUJO_DE_CAJA'}"
                        class="list-group-item list-group-item-action bg-transparent text-white sidebar-item">
                         <i class="bi bi-receipt-cutoff me-3"></i>Ventas
                     </a>

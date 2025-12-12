@@ -40,7 +40,7 @@ public class ProductoServiceImpl implements ProductoService {
     @Override
     @Transactional(readOnly = true)
     public List<ProductoDTO> listar() {
-        return productoRepository.findAll()
+        return productoRepository.findAllByOrderByIdAsc()
                 .stream()
                 .map(this::convertToDto)
                 .toList();

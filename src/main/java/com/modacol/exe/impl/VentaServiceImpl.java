@@ -120,7 +120,7 @@ public class VentaServiceImpl implements VentaService {
     @Override
     @Transactional(readOnly = true)
     public List<VentaDTO> listar() {
-        return ventaRepository.findAll()
+        return ventaRepository.findAllByOrderByIdAsc()
                 .stream()
                 .map(this::convertToDto)
                 .toList();
@@ -146,11 +146,7 @@ public class VentaServiceImpl implements VentaService {
         applyDtoToEntity(dto, venta);
 
         // Limpiar detalles anteriores
-        if (venta.getDetalles() == null) {
-            venta.setDetalles(new ArrayList<>());
-        } else {
-            venta.getDetalles().clear();
-        }
+        venta.getDetalles().clear();
 
         // Volver a cargar detalles desde el DTO
         if (dto.getDetalles() != null) {
@@ -165,33 +161,16 @@ public class VentaServiceImpl implements VentaService {
                                 new RuntimeException("Producto no encontrado: " + detDto.getProductoId()));
 
                 det.setProducto(prod);
-
-                Integer cantidad = detDto.getCantidad() != null ? detDto.getCantidad() : 0;
-                det.setCantidad(cantidad);
-
-                BigDecimal precio = detDto.getPrecioUnitario() != null
-                        ? detDto.getPrecioUnitario()
-                        : (prod.getPrecioUnitario() != null ? prod.getPrecioUnitario() : BigDecimal.ZERO);
-                det.setPrecioUnitario(precio);
-
-                BigDecimal subtotal = precio.multiply(BigDecimal.valueOf(cantidad));
-                det.setSubtotal(subtotal);
+                det.setCantidad(detDto.getCantidad() != null ? detDto.getCantidad() : 0);
+                det.setPrecioUnitario(detDto.getPrecioUnitario() != null ? detDto.getPrecioUnitario() : BigDecimal.ZERO);
+                det.setSubtotal(det.getPrecioUnitario().multiply(BigDecimal.valueOf(det.getCantidad())));
 
                 venta.getDetalles().add(det);
             }
         }
 
-        // Recalcular total y validar stock
         recalcularTotal(venta);
-        validarStockDisponible(venta);
-
         venta = ventaRepository.save(venta);
-
-        // Descontar inventario
-        if ("CONFIRMADA".equalsIgnoreCase(venta.getEstado())
-                || "PAGADA".equalsIgnoreCase(venta.getEstado())) {
-            aplicarSalidaInventario(venta);
-        }
 
         return convertToDto(venta);
     }

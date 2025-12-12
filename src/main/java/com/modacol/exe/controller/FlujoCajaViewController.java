@@ -35,9 +35,15 @@ public class FlujoCajaViewController {
         model.addAttribute("hasta", hasta);
         model.addAttribute("tipo", tipo);
 
-        model.addAttribute("ingresosTotal", flujoCajaService.calcularIngresos(desde, hasta));
-        model.addAttribute("egresosTotal", flujoCajaService.calcularEgresos(desde, hasta));
+        model.addAttribute("ingresos", flujoCajaService.calcularIngresos(desde, hasta));
+        model.addAttribute("egresos", flujoCajaService.calcularEgresos(desde, hasta));
         model.addAttribute("saldo", flujoCajaService.calcularSaldo(desde, hasta));
+        
+        // Contar ingresos y egresos
+        long conteoIngresos = movimientos.stream().filter(m -> "INGRESO".equals(m.getTipoMovimiento().name())).count();
+        long conteoEgresos = movimientos.stream().filter(m -> "EGRESO".equals(m.getTipoMovimiento().name())).count();
+        model.addAttribute("conteoIngresos", conteoIngresos);
+        model.addAttribute("conteoEgresos", conteoEgresos);
 
         return "flujo-caja/list";
     }

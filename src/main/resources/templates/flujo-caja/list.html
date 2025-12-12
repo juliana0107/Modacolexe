@@ -11,9 +11,6 @@
         <h5 class="mb-0">
             <i class="bi bi-cash-stack"></i> Flujo de Caja
         </h5>
-        <button type="button" class="btn btn-success btn-sm" onclick="descargarExcel()">
-            <i class="bi bi-file-earmark-excel"></i> Excel
-        </button>
     </div>
 
     <!-- MÉTRICAS PRINCIPALES -->
@@ -48,6 +45,7 @@
                             <h4 class="mb-0 fw-bold">
                                 $<span th:text="${ingresos != null ? #numbers.formatDecimal(ingresos, 0, 'COMMA', 0, 'POINT') : '0'}">0</span>
                             </h4>
+                            <small class="opacity-75" th:text="${conteoIngresos} + ' transacciones'">0 transacciones</small>
                         </div>
                         <div class="dashboard-icon">
                             <i class="bi bi-arrow-up-circle fs-1"></i>
@@ -67,6 +65,7 @@
                             <h4 class="mb-0 fw-bold">
                                 $<span th:text="${egresos != null ? #numbers.formatDecimal(egresos, 0, 'COMMA', 0, 'POINT') : '0'}">0</span>
                             </h4>
+                            <small class="opacity-75" th:text="${conteoEgresos} + ' transacciones'">0 transacciones</small>
                         </div>
                         <div class="dashboard-icon">
                             <i class="bi bi-arrow-down-circle fs-1"></i>
@@ -139,8 +138,8 @@
                             <a th:href="@{/flujo-caja}" class="btn btn-secondary btn-sm flex-fill">
                                 <i class="bi bi-x-circle"></i>
                             </a>
-                            <a href="/reportes?tipo=flujo-caja" class="btn btn-success btn-sm">
-                                <i class="bi bi-download"></i> Descargar Excel
+                            <a href="/reportes?tipo=flujo-caja" class="btn btn-success btn-sm flex-fill">
+                                <i class="bi bi-file-earmark-excel"></i>
                             </a>
                         </div>
                     </div>
@@ -164,7 +163,6 @@
                         <th>Descripción</th>
                         <th class="text-end">Monto</th>
                         <th>Origen</th>
-                        <th class="text-center">Acciones</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -199,19 +197,6 @@
                             <small th:if="${mov.ventaId == null and mov.compraId == null}">
                                 Manual
                             </small>
-                        </td>
-
-                        <!-- Acciones -->
-                        <td class="text-center">
-                            <a th:href="@{/flujo-caja/edit/{id}(id=${mov.id})}"
-                               class="btn btn-primary btn-sm me-1">
-                                <i class="bi bi-pencil-square"></i>
-                            </a>
-                            <a th:href="@{/flujo-caja/delete/{id}(id=${mov.id})}"
-                               class="btn btn-danger btn-sm"
-                               onclick="return confirm('¿Eliminar este movimiento?')">
-                                <i class="bi bi-trash"></i>
-                            </a>
                         </td>
                     </tr>
 

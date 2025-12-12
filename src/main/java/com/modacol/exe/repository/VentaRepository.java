@@ -13,5 +13,6 @@ public interface VentaRepository extends JpaRepository<Venta, Long>, JpaSpecific
     @Query("SELECT v FROM Venta v WHERE v.fechaVenta BETWEEN :desde AND :hasta")
     List<Venta> filtrarPorFechas(@Param("desde") LocalDate desde,
                                  @Param("hasta") LocalDate hasta);
-
+    
+    List<Venta> findAllByOrderByIdAsc();
 }

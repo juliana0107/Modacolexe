@@ -74,6 +74,7 @@
                         <th>Fecha compra</th>
                         <th>Fecha entrega</th>
                         <th>Proveedor</th>
+                        <th>Productos</th>
                         <th>Usuario</th>
                         <th>Estado</th>
                         <th class="text-end">Total</th>
@@ -87,6 +88,16 @@
                         <td th:text="${compra.fechaCompra}"></td>
                         <td th:text="${compra.fechaEstimadaEntrega}"></td>
                         <td th:text="${compra.proveedorNombre}"></td>
+                        <td>
+                            <small th:if="${compra.detalles != null && !compra.detalles.isEmpty()}">
+                                <span th:each="detalle, iterStat : ${compra.detalles}">
+                                    <span th:text="${detalle.productoNombre}"></span>
+                                    <span th:if="${detalle.cantidad > 1}" th:text="' (x' + ${detalle.cantidad} + ')'"></span>
+                                    <span th:if="${!iterStat.last}">, </span>
+                                </span>
+                            </small>
+                            <small th:if="${compra.detalles == null || compra.detalles.isEmpty()}" class="text-muted">Sin productos</small>
+                        </td>
                         <td th:text="${compra.usuarioNombre}"></td>
                         <td th:text="${compra.estado}"></td>
                         <td class="text-end" th:text="${#numbers.formatDecimal(compra.total, 1, 'POINT', 2, 'COMMA')}"></td>

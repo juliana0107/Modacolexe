@@ -32,7 +32,7 @@ public class ClienteServiceImpl implements ClienteService {
 
     @Override
     public List<ClienteDTO> listar() {
-        return clienteRepository.findAll()
+        return clienteRepository.findAllByOrderByIdAsc()
                 .stream()
                 .map(this::convertToDto)
                 .collect(Collectors.toList());
