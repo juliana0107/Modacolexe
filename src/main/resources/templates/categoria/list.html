@@ -98,20 +98,18 @@
                                 </span>
                             </td>
                             <td class="text-center">
-                                <div class="btn-group" role="group">
-                                    <a th:href="@{/categorias/edit/{id}(id=${categoria.id})}" 
-                                       class="btn btn-warning btn-sm" 
-                                       title="Editar categoría">
-                                        <i class="bi bi-pencil-square"></i>
-                                    </a>
-                                    <a th:href="@{/categorias/delete/{id}(id=${categoria.id})}" 
-                                       class="btn btn-danger btn-sm" 
-                                       title="Eliminar categoría"
-                                       th:if="${categoria.activo}"
-                                       onclick="return confirm('¿Estás seguro de que deseas inactivar esta categoría?');">
-                                        <i class="bi bi-trash"></i>
-                                    </a>
-                                </div>
+                                <a th:href="@{/categorias/edit/{id}(id=${categoria.id})}" 
+                                   class="btn btn-primary btn-sm me-1" 
+                                   title="Editar categoría">
+                                    <i class="bi bi-pencil-square"></i>
+                                </a>
+                                <a th:href="@{/categorias/delete/{id}(id=${categoria.id})}" 
+                                   class="btn btn-danger btn-sm" 
+                                   title="Eliminar categoría"
+                                   th:if="${categoria.activo}"
+                                   onclick="return confirm('¿Estás seguro de que deseas inactivar esta categoría?');">
+                                    <i class="bi bi-trash"></i>
+                                </a>
                             </td>
                         </tr>
                         <tr th:if="${#lists.isEmpty(categoriasList)}">
