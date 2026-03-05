@@ -1,107 +1,106 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
       th:replace="~{layout/base :: layout(~{::title}, ~{::content})}">
+<head>
+    <title th:text="${venta.id == null ? 'Nueva Venta' : 'Editar Venta'}">Ventas</title>
+</head>
 <body>
 <div th:fragment="content" class="container-fluid px-2">
 
     <div class="d-flex align-items-center mb-3">
-        <div class="rounded-circle me-3 d-flex align-items-center justify-content-center" 
+        <div class="rounded-circle me-3 d-flex align-items-center justify-content-center"
              style="width: 50px; height: 50px; background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); color: white;">
             <i class="bi bi-receipt-cutoff fs-5"></i>
         </div>
         <div>
             <h5 class="mb-1" th:text="${venta.id == null ? 'Nueva Venta' : 'Editar Venta'}">Formulario de Venta</h5>
-            <small class="text-muted">Gestión de ventas a clientes</small>
+            <small class="text-muted">Gestión de ventas con IVA 19% (Colombia)</small>
         </div>
     </div>
 
-    <div class="card">
+    <div class="card shadow-sm">
         <div class="card-body p-3">
-            <form th:action="@{/ventas}" th:object="${venta}" method="post">
+            <form th:action="${venta.id == null} ? @{/api/ventas} : @{/api/ventas/{id}(id=${venta.id})}"
+                  th:object="${venta}" method="post">
+
+                <input type="hidden" name="_method" value="PUT" th:if="${venta.id != null}"/>
                 <input type="hidden" th:field="*{id}"/>
+                <input type="hidden" th:field="*{numeroVenta}"/>
 
                 <div class="row g-2 mb-3">
                     <div class="col-md-4">
-                        <label class="form-label mb-1 small">Usuario</label>
-                        <select th:field="*{usuarioId}" class="form-select form-select-sm" 
-                                th:classappend="${#fields.hasErrors('usuarioId')} ? 'is-invalid' : ''">
+                        <label class="form-label mb-1 small fw-bold">Vendedor / Usuario</label>
+                        <select th:field="*{usuarioId}" class="form-select form-select-sm" required>
                             <option value="">-- Seleccione Usuario --</option>
-                            <option th:each="u : ${usuarios}"
-                                    th:value="${u.id}"
-                                    th:text="${u.nombre}">
-                            </option>
+                            <option th:each="u : ${usuarios}" th:value="${u.id}" th:text="${u.nombre}"></option>
                         </select>
-                        <div class="invalid-feedback" th:if="${#fields.hasErrors('usuarioId')}" th:errors="*{usuarioId}"></div>
                     </div>
                     <div class="col-md-4">
-                        <label class="form-label mb-1 small">Cliente</label>
-                        <select th:field="*{clienteId}" class="form-select form-select-sm" 
-                                th:classappend="${#fields.hasErrors('clienteId')} ? 'is-invalid' : ''">
+                        <label class="form-label mb-1 small fw-bold">Cliente</label>
+                        <select th:field="*{clienteId}" class="form-select form-select-sm" required>
                             <option value="">-- Seleccione Cliente --</option>
-                            <option th:each="c : ${clientes}"
-                                    th:value="${c.id}"
-                                    th:text="${c.empresa}">
-                            </option>
+                            <option th:each="c : ${clientes}" th:value="${c.id}" th:text="${c.nombre}"></option>
                         </select>
-                        <div class="invalid-feedback" th:if="${#fields.hasErrors('clienteId')}" th:errors="*{clienteId}"></div>
                     </div>
                     <div class="col-md-4">
-                        <label class="form-label mb-1 small">Fecha</label>
-                        <input type="date" th:field="*{fechaVenta}" class="form-control form-control-sm" 
-                               th:classappend="${#fields.hasErrors('fechaVenta')} ? 'is-invalid' : ''"/>
-                        <div class="invalid-feedback" th:if="${#fields.hasErrors('fechaVenta')}" th:errors="*{fechaVenta}"></div>
+                        <label class="form-label mb-1 small fw-bold">Fecha de Venta</label>
+                        <input type="date" th:field="*{fechaVenta}" class="form-control form-control-sm" required/>
                     </div>
                 </div>
 
                 <div class="d-flex justify-content-between align-items-center mb-2">
-                    <h6 class="mb-0">Detalles de la Venta</h6>
+                    <h6 class="mb-0 text-primary"><i class="bi bi-list-check me-1"></i>Detalles de la Venta</h6>
                     <button type="button" id="agregar-producto" class="btn btn-primary btn-sm">
-                        <i class="bi bi-plus"></i> Agregar Producto
+                        <i class="bi bi-plus-circle"></i> Agregar Producto
                     </button>
                 </div>
+
                 <div class="table-responsive">
-                    <table class="table table-sm table-bordered">
+                    <table class="table table-sm table-bordered align-middle" id="tabla-detalles">
                         <thead class="table-dark">
                         <tr>
                             <th>Producto</th>
                             <th style="width: 100px;">Cantidad</th>
-                            <th style="width: 130px;">Precio Unitario</th>
-                            <th style="width: 130px;">Subtotal</th>
-                            <th style="width: 60px;">Acción</th>
+                            <th style="width: 140px;">Precio (Sin IVA)</th>
+                            <th style="width: 140px;">Subtotal (Inc. IVA)</th>
+                            <th style="width: 50px;"></th>
                         </tr>
                         </thead>
                         <tbody id="detalles-body">
-                        <tr th:each="detalle, iterStat : *{detalles}">
+                        <tr th:each="detalle, iterStat : *{detalles}" class="detalle-fila">
                             <td>
-                                <select th:field="*{detalles[__${iterStat.index}__].productoId}"
-                                        class="form-select form-select-sm producto-select">
-                                    <option value="">-- Producto --</option>
+                                <select th:name="|detalles[${iterStat.index}].productoId|"
+                                        class="form-select form-select-sm producto-select" required>
+                                    <option value="">-- Seleccione Producto --</option>
                                     <option th:each="p : ${productos}"
                                             th:value="${p.id}"
                                             th:text="${p.nombre}"
+                                            th:selected="${p.id == detalle.productoId}"
                                             th:attr="data-precio=${p.precioUnitario}">
                                     </option>
                                 </select>
                             </td>
                             <td>
-                                <input type="number" min="1"
-                                       th:field="*{detalles[__${iterStat.index}__].cantidad}"
-                                       class="form-control form-control-sm cantidad-input"/>
+                                <input type="number" min="1" th:name="|detalles[${iterStat.index}].cantidad|"
+                                       th:value="${detalle.cantidad != null ? detalle.cantidad : 1}"
+                                       class="form-control form-control-sm cantidad-input" required/>
                             </td>
                             <td>
-                                <input type="text" pattern="[0-9]+(\.[0-9]+)?"
-                                       th:field="*{detalles[__${iterStat.index}__].precioUnitario}"
-                                       class="form-control form-control-sm precio-unitario editable-precio"
-                                       placeholder="0.00"/>
+                                <div class="input-group input-group-sm">
+                                    <span class="input-group-text">$</span>
+                                    <input type="number" step="0.01" th:name="|detalles[${iterStat.index}].precioUnitario|"
+                                           th:value="${detalle.precioUnitario}" class="form-control precio-unitario" required/>
+                                </div>
                             </td>
                             <td>
-                                <input type="number" step="0.01"
-                                       th:field="*{detalles[__${iterStat.index}__].subtotal}"
-                                       class="form-control form-control-sm subtotal"
-                                       readonly/>
+                                <div class="input-group input-group-sm">
+                                    <span class="input-group-text bg-light">$</span>
+                                    <input type="number" step="0.01" th:name="|detalles[${iterStat.index}].subtotal|"
+                                           th:value="${detalle.subtotal}" class="form-control subtotal bg-light" readonly/>
+                                </div>
                             </td>
                             <td class="text-center">
-                                <button type="button" class="btn btn-danger btn-sm eliminar-fila">
+                                <button type="button" class="btn btn-outline-danger btn-sm eliminar-fila">
                                     <i class="bi bi-trash"></i>
                                 </button>
                             </td>
@@ -111,160 +110,144 @@
                 </div>
 
                 <div class="row mt-3">
-                    <div class="col-md-4 ms-auto">
-                        <label class="form-label mb-1 small fw-bold">Total de la Venta</label>
-                        <div class="input-group">
-                            <span class="input-group-text" style="background: var(--primary-color); color: white;">$</span>
-                            <input type="number" step="0.01" th:field="*{total}"
-                                   class="form-control text-end fw-bold" readonly/>
+                    <div class="col-md-7">
+                        <label class="form-label small fw-bold">Observaciones</label>
+                        <textarea th:field="*{observaciones}" class="form-control form-control-sm" rows="3" placeholder="Notas adicionales..."></textarea>
+                    </div>
+                    <div class="col-md-5">
+                        <div class="card bg-light border-0">
+                            <div class="card-body p-3">
+                                <div class="d-flex justify-content-between mb-1">
+                                    <span class="text-muted small">Subtotal (Base):</span>
+                                    <span id="label-subtotal" class="small fw-bold">$ 0.00</span>
+                                </div>
+                                <div class="d-flex justify-content-between mb-1 text-danger">
+                                    <span class="small">IVA (19%):</span>
+                                    <span id="label-iva" class="small fw-bold">$ 0.00</span>
+                                </div>
+                                <hr class="my-2">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="fw-bold text-primary">Total a Pagar:</span>
+                                    <div class="input-group input-group-sm" style="width: 180px;">
+                                        <span class="input-group-text bg-primary text-white">$</span>
+                                        <input type="number" step="0.01" th:field="*{total}"
+                                               class="form-control text-end fw-bold fs-6" readonly/>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="d-flex gap-2 justify-content-end mt-3 pt-2 border-top">
-                    <a th:href="@{/ventas}" class="btn btn-outline-secondary btn-sm">
-                        <i class="bi bi-x-circle me-1"></i>Cancelar
+                <div class="d-flex gap-2 justify-content-end mt-4 pt-3 border-top">
+                    <a th:href="@{/ventas}" class="btn btn-secondary btn-sm px-4">
+                        <i class="bi bi-arrow-left"></i> Volver
                     </a>
-                    <button type="submit" class="btn btn-success btn-sm">
-                        <i class="bi bi-check-circle me-1"></i>Guardar Venta
+                    <button type="submit" class="btn btn-success btn-sm px-4">
+                        <i class="bi bi-save"></i> Guardar Venta
                     </button>
                 </div>
             </form>
         </div>
     </div>
 
-    <script>
+    <script th:inline="javascript">
         document.addEventListener('DOMContentLoaded', () => {
+            const tbody = document.getElementById('detalles-body');
+            const IVA_PORCENTAJE = 0.19;
+
+            function reindexarFilas() {
+                document.querySelectorAll('.detalle-fila').forEach((fila, index) => {
+                    fila.querySelectorAll('select, input').forEach(input => {
+                        const name = input.getAttribute('name');
+                        if (name) {
+                            input.setAttribute('name', name.replace(/detalles\[\d+\]/, `detalles[${index}]`));
+                        }
+                    });
+                });
+            }
 
             function actualizarSubtotal(fila) {
-                const precioInput = fila.querySelector('.precio-unitario');
-                const cantidadInput = fila.querySelector('.cantidad-input');
-                const subtotalInput = fila.querySelector('.subtotal');
+                const precio = parseFloat(fila.querySelector('.precio-unitario').value) || 0;
+                const cantidad = parseInt(fila.querySelector('.cantidad-input').value) || 0;
 
-                const precio = parseFloat(precioInput.value) || 0;
-                const cantidad = parseInt(cantidadInput.value) || 0;
+                // Cálculo: Base + (Base * 19%)
+                const base = precio * cantidad;
+                const valorIva = base * IVA_PORCENTAJE;
+                const subtotalConIva = base + valorIva;
 
-                subtotalInput.value = (precio * cantidad).toFixed(2);
+                fila.querySelector('.subtotal').value = subtotalConIva.toFixed(2);
+                actualizarTotalGlobal();
             }
 
-            function actualizarTotal() {
-                let total = 0;
-                document.querySelectorAll('#detalles-body tr').forEach(tr => {
-                    total += parseFloat(tr.querySelector('.subtotal').value) || 0;
+            function actualizarTotalGlobal() {
+                let sumaBase = 0;
+                let sumaIva = 0;
+                let sumaTotal = 0;
+
+                document.querySelectorAll('.detalle-fila').forEach(fila => {
+                    const precio = parseFloat(fila.querySelector('.precio-unitario').value) || 0;
+                    const cantidad = parseInt(fila.querySelector('.cantidad-input').value) || 0;
+
+                    const base = precio * cantidad;
+                    const iva = base * IVA_PORCENTAJE;
+
+                    sumaBase += base;
+                    sumaIva += iva;
+                    sumaTotal += (base + iva);
                 });
 
-                const totalInput = document.querySelector('input[name="total"]');
-                if (totalInput) {
-                    totalInput.value = total.toFixed(2);
-                }
+                // Actualizar campos visuales
+                document.getElementById('label-subtotal').innerText = '$ ' + sumaBase.toLocaleString('es-CO', {minimumFractionDigits: 2});
+                document.getElementById('label-iva').innerText = '$ ' + sumaIva.toLocaleString('es-CO', {minimumFractionDigits: 2});
+                document.getElementById('total').value = sumaTotal.toFixed(2);
             }
 
-            let contadorFilas = document.querySelectorAll('#detalles-body tr').length;
+            document.getElementById('agregar-producto').addEventListener('click', () => {
+                const filasActuales = document.querySelectorAll('.detalle-fila');
+                const nuevaFila = filasActuales[0].cloneNode(true);
 
-            function agregarFila() {
-                const tbody = document.getElementById('detalles-body');
-                const nuevaFila = document.createElement('tr');
-                
-                nuevaFila.innerHTML = `
-                    <td>
-                        <select name="detalles[${contadorFilas}].productoId" class="form-select form-select-sm producto-select">
-                            <option value="">-- Producto --</option>
-                            ${document.querySelector('.producto-select').innerHTML.replace('<option value="">-- Producto --</option>', '')}
-                        </select>
-                    </td>
-                    <td>
-                        <input type="number" min="1" name="detalles[${contadorFilas}].cantidad" class="form-control form-control-sm cantidad-input"/>
-                    </td>
-                    <td>
-                        <input type="text" pattern="[0-9]+(\\.[0-9]+)?" name="detalles[${contadorFilas}].precioUnitario" class="form-control form-control-sm precio-unitario editable-precio" placeholder="0.00"/>
-                    </td>
-                    <td>
-                        <input type="number" step="0.01" name="detalles[${contadorFilas}].subtotal" class="form-control form-control-sm subtotal" readonly/>
-                    </td>
-                    <td class="text-center">
-                        <button type="button" class="btn btn-danger btn-sm eliminar-fila">
-                            <i class="bi bi-trash"></i>
-                        </button>
-                    </td>
-                `;
-                
+                // Limpiar inputs
+                nuevaFila.querySelectorAll('input').forEach(i => {
+                    i.value = i.classList.contains('cantidad-input') ? 1 : '0.00';
+                });
+                nuevaFila.querySelector('select').value = '';
+
                 tbody.appendChild(nuevaFila);
-                contadorFilas++;
-                agregarEventosFila(nuevaFila);
-            }
-
-            function agregarEventosFila(fila) {
-                const select = fila.querySelector('.producto-select');
-                const cantidadInput = fila.querySelector('.cantidad-input');
-                const precioInput = fila.querySelector('.editable-precio');
-                const eliminarBtn = fila.querySelector('.eliminar-fila');
-
-                select.addEventListener('change', e => {
-                    const option = e.target.selectedOptions[0];
-                    const precioBase = option ? (parseFloat(option.dataset.precio) || 0) : 0;
-                    
-                    precioInput.dataset.base = precioBase;
-                    precioInput.value = precioBase;
-                    
-                    actualizarSubtotal(fila);
-                    actualizarTotal();
-                });
-
-                cantidadInput.addEventListener('input', () => {
-                    actualizarSubtotal(fila);
-                    actualizarTotal();
-                });
-
-                precioInput.addEventListener('input', () => {
-                    const base = parseFloat(precioInput.dataset.base) || 0;
-                    let nuevo = parseFloat(precioInput.value) || 0;
-                    
-                    if (nuevo < base) {
-                        precioInput.value = base.toFixed(2);
-                    }
-                    
-                    actualizarSubtotal(fila);
-                    actualizarTotal();
-                });
-
-                if (eliminarBtn) {
-                    eliminarBtn.addEventListener('click', () => {
-                        fila.remove();
-                        actualizarTotal();
-                    });
-                }
-            }
-
-            // Agregar eventos a filas existentes
-            document.querySelectorAll('#detalles-body tr').forEach(fila => {
-                agregarEventosFila(fila);
-                
-                const select = fila.querySelector('.producto-select');
-                const option = select.selectedOptions[0];
-                const precioBase = option ? (parseFloat(option.dataset.precio) || 0) : 0;
-                
-                const precioInput = fila.querySelector('.precio-unitario');
-                precioInput.dataset.base = precioBase;
-                
-                if (parseFloat(precioInput.value) < precioBase) {
-                    precioInput.value = precioBase.toFixed(2);
-                }
-                
-                actualizarSubtotal(fila);
+                reindexarFilas();
+                vincularEventosFila(nuevaFila);
             });
 
-            // Botón agregar producto
-            document.getElementById('agregar-producto').addEventListener('click', agregarFila);
+            function vincularEventosFila(fila) {
+                // Evento al cambiar producto (traer precio)
+                fila.querySelector('.producto-select').addEventListener('change', e => {
+                    const selected = e.target.selectedOptions[0];
+                    const precio = selected ? (selected.dataset.precio || 0) : 0;
+                    fila.querySelector('.precio-unitario').value = precio;
+                    actualizarSubtotal(fila);
+                });
 
-            // Asegurar que haya al menos una fila vacía al cargar
-            if (document.querySelectorAll('#detalles-body tr').length === 0) {
-                agregarFila();
+                // Eventos de cálculo
+                fila.querySelector('.cantidad-input').addEventListener('input', () => actualizarSubtotal(fila));
+                fila.querySelector('.precio-unitario').addEventListener('input', () => actualizarSubtotal(fila));
+
+                // Eliminar fila
+                fila.querySelector('.eliminar-fila').addEventListener('click', () => {
+                    if (document.querySelectorAll('.detalle-fila').length > 1) {
+                        fila.remove();
+                        reindexarFilas();
+                        actualizarTotalGlobal();
+                    } else {
+                        alert("La venta debe tener al menos un producto.");
+                    }
+                });
             }
 
-            actualizarTotal();
+            // Inicializar filas existentes
+            document.querySelectorAll('.detalle-fila').forEach(vincularEventosFila);
+            actualizarTotalGlobal(); // Calcular totales al cargar (especial para edición)
         });
     </script>
-
 </div>
 </body>
 </html>

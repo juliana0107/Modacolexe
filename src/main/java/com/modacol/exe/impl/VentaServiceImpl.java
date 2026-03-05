@@ -139,73 +139,100 @@ public class VentaServiceImpl implements VentaService {
     @Override
     @Transactional
     public VentaDTO actualizar(Long id, VentaDTO dto) {
+        // 1. Recuperar la entidad gestionada
         Venta venta = ventaRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Venta no encontrada: " + id));
 
-        // Actualizar cabecera
+        // 2. Aplicar cambios básicos del DTO
         applyDtoToEntity(dto, venta);
 
-        // Limpiar detalles anteriores
+        // 3. SOLUCIÓN AL ERROR 500: Validar campos obligatorios que vienen nulos del DTO
+        // Si el formulario no los envía, les asignamos el valor que ya tenían o uno por defecto
+        if (venta.getEstado() == null) venta.setEstado("PENDIENTE");
+        if (venta.getTipoDocumento() == null) venta.setTipoDocumento("FACTURA");
+        if (venta.getFormaPago() == null) venta.setFormaPago("EFECTIVO");
+
+        // Asegurar que el número de venta no se pierda
+        if (dto.getNumeroVenta() != null && !dto.getNumeroVenta().isBlank()) {
+            venta.setNumeroVenta(dto.getNumeroVenta());
+        }
+        venta.setActivo(true);
+
+        // 4. ACTUALIZACIÓN DE DETALLES (Sincronización)
+        // Primero vaciamos la lista actual gestionada por Hibernate
         venta.getDetalles().clear();
 
-        // Volver a cargar detalles desde el DTO
-        if (dto.getDetalles() != null) {
+        // Es recomendable hacer un flush aquí para que Hibernate elimine los huérfanos antes de insertar los nuevos
+        ventaRepository.saveAndFlush(venta);
+
+        if (dto.getDetalles() != null && !dto.getDetalles().isEmpty()) {
             for (DetalleVentaDTO detDto : dto.getDetalles()) {
                 if (detDto.getProductoId() == null) continue;
 
-                DetalleVenta det = new DetalleVenta();
-                det.setVenta(venta);
+                DetalleVenta nuevoDetalle = new DetalleVenta();
+                nuevoDetalle.setVenta(venta); // Relación bidireccional
 
                 Producto prod = productoRepository.findById(detDto.getProductoId())
-                        .orElseThrow(() ->
-                                new RuntimeException("Producto no encontrado: " + detDto.getProductoId()));
+                        .orElseThrow(() -> new RuntimeException("Producto no encontrado: " + detDto.getProductoId()));
 
-                det.setProducto(prod);
-                det.setCantidad(detDto.getCantidad() != null ? detDto.getCantidad() : 0);
-                det.setPrecioUnitario(detDto.getPrecioUnitario() != null ? detDto.getPrecioUnitario() : BigDecimal.ZERO);
-                det.setSubtotal(det.getPrecioUnitario().multiply(BigDecimal.valueOf(det.getCantidad())));
+                nuevoDetalle.setProducto(prod);
+                nuevoDetalle.setCantidad(detDto.getCantidad() != null ? detDto.getCantidad() : 0);
 
-                venta.getDetalles().add(det);
+                // Usar el precio del DTO, si es nulo usar el del producto
+                BigDecimal precio = (detDto.getPrecioUnitario() != null) ? detDto.getPrecioUnitario() : prod.getPrecioUnitario();
+                nuevoDetalle.setPrecioUnitario(precio);
+
+                // Calcular subtotal
+                nuevoDetalle.setSubtotal(precio.multiply(BigDecimal.valueOf(nuevoDetalle.getCantidad())));
+
+                venta.getDetalles().add(nuevoDetalle);
             }
         }
 
+        // 5. Recalcular y guardar definitivo
         recalcularTotal(venta);
-        venta = ventaRepository.save(venta);
 
-        return convertToDto(venta);
+        // Usamos saveAndFlush para asegurar que se disparen las validaciones antes de salir del método
+        Venta ventaActualizada = ventaRepository.saveAndFlush(venta);
+
+        return convertToDto(ventaActualizada);
     }
-
     // ==================== ELIMINAR ====================
 
     @Override
     @Transactional
     public void eliminar(Long id) {
-        if (!ventaRepository.existsById(id)) {
-            throw new RuntimeException("Venta no encontrada: " + id);
-        }
-        // Aquí podrías devolver stock si quieres ser más pro.
-        ventaRepository.deleteById(id);
+        Venta venta = ventaRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Venta no encontrada: " + id));
+        venta.setActivo(false);
+        ventaRepository.save(venta);
     }
 
     // ==================== FILTRAR ====================
 
     @Override
     @Transactional(readOnly = true)
-    public List<VentaDTO> filtrar(LocalDate desde, LocalDate hasta, Long usuarioId) {
-        return ventaRepository.findAll().stream()
+    public List<VentaDTO> filtrar(LocalDate inicio, LocalDate fin, Long clienteId) {
+        // Traemos todas (o podrías usar un Repository Query)
+        List<Venta> todas = ventaRepository.findAll();
+
+        return todas.stream()
                 .filter(v -> {
-                    LocalDate fecha = v.getFechaVenta();
-                    boolean okFecha = fecha != null
-                            && (fecha.isEqual(desde) || fecha.isAfter(desde))
-                            && (fecha.isEqual(hasta) || fecha.isBefore(hasta));
+                    // 1. Filtro de Cliente: Si clienteId es null, pasa. Si no, debe coincidir.
+                    boolean matchCliente = (clienteId == null) ||
+                            (v.getCliente() != null && v.getCliente().getId().equals(clienteId));
 
-                    boolean okUsuario = (usuarioId == null)
-                            || (v.getUsuario() != null
-                            && v.getUsuario().getId().equals(usuarioId));
+                    // 2. Filtro de Fecha Inicio: Si inicio es null, pasa. Si no, la fecha debe ser posterior o igual.
+                    boolean matchInicio = (inicio == null) ||
+                            (!v.getFechaVenta().isBefore(inicio));
 
-                    return okFecha && okUsuario;
+                    // 3. Filtro de Fecha Fin: Si fin es null, pasa. Si no, la fecha debe ser anterior o igual.
+                    boolean matchFin = (fin == null) ||
+                            (!v.getFechaVenta().isAfter(fin));
+
+                    return matchCliente && matchInicio && matchFin;
                 })
-                .map(this::convertToDto)
+                .map(this::convertToDto) // Tu método de conversión
                 .toList();
     }
 
@@ -249,6 +276,10 @@ public class VentaServiceImpl implements VentaService {
         venta.setFormaPago(dto.getFormaPago());
         venta.setEstado(dto.getEstado());
         venta.setObservaciones(dto.getObservaciones());
+        
+        if (dto.getActivo() != null) {
+            venta.setActivo(dto.getActivo());
+        }
 
         if (dto.getUsuarioId() != null) {
             Usuario usuario = usuarioRepository.findById(dto.getUsuarioId())
@@ -276,6 +307,7 @@ public class VentaServiceImpl implements VentaService {
         dto.setEstado(venta.getEstado());
         dto.setObservaciones(venta.getObservaciones());
         dto.setTotal(venta.getTotal());
+        dto.setActivo(venta.getActivo());
 
         if (venta.getUsuario() != null) {
             dto.setUsuarioId(venta.getUsuario().getId());
@@ -355,15 +387,26 @@ public class VentaServiceImpl implements VentaService {
     // ==================== UTILIDADES ====================
 
     private void recalcularTotal(Venta venta) {
-        BigDecimal total = BigDecimal.ZERO;
+        BigDecimal totalVenta = BigDecimal.ZERO;
         if (venta.getDetalles() != null) {
             for (DetalleVenta det : venta.getDetalles()) {
-                if (det.getSubtotal() != null) {
-                    total = total.add(det.getSubtotal());
+                if (det.getPrecioUnitario() != null) {
+                    // 1. Calcular base (precio * cantidad)
+                    BigDecimal base = det.getPrecioUnitario().multiply(BigDecimal.valueOf(det.getCantidad()));
+
+                    // 2. Calcular IVA (19%)
+                    BigDecimal iva = base.multiply(new BigDecimal("0.19"));
+
+                    // 3. El subtotal del detalle será Base + IVA
+                    BigDecimal subtotalConIva = base.add(iva);
+                    det.setSubtotal(subtotalConIva);
+
+                    // 4. Sumar al total de la venta
+                    totalVenta = totalVenta.add(subtotalConIva);
                 }
             }
         }
-        venta.setTotal(total);
+        venta.setTotal(totalVenta);
     }
 
     private String generarNumeroVenta() {

@@ -29,6 +29,7 @@ public class VentaDTO {
 
     private BigDecimal total;
 
-    // 👇 AQUÍ el cambio importante
     private List<DetalleVentaDTO> detalles = new ArrayList<>();
+
+    private Boolean activo = true;
 }

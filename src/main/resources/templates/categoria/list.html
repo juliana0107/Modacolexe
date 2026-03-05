@@ -61,20 +61,26 @@
                                 Tipo de Categoría
                             </th>
                             <th class="text-center">
+                                <i class="bi bi-circle-fill me-1"></i>
+                                Estado
+                            </th>
+                            <th class="text-center">
                                 <i class="bi bi-gear me-1"></i>
                                 Acciones
                             </th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr th:each="categoria, iterStat : ${categoriasList}" class="align-middle">
+                        <tr th:each="categoria, iterStat : ${categoriasList}" class="align-middle" 
+                            th:classappend="${!categoria.activo} ? 'table-secondary' : ''">
                             <td class="ps-4">
                                 <span class="badge bg-light text-dark rounded-pill px-3 py-2" th:text="${categoria.id}">1</span>
                             </td>
                             <td>
                                 <div class="d-flex align-items-center">
                                     <div class="rounded-circle me-3 d-flex align-items-center justify-content-center" 
-                                         style="width: 40px; height: 40px; background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); color: white;">
+                                         style="width: 40px; height: 40px; background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); color: white;"
+                                         th:style="${!categoria.activo} ? 'width: 40px; height: 40px; background: #6c757d; color: white;' : 'width: 40px; height: 40px; background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); color: white;'">
                                         <i class="bi bi-tag-fill"></i>
                                     </div>
                                     <div>
@@ -82,6 +88,14 @@
                                         <small class="text-muted">Categoría #<span th:text="${categoria.id}">1</span></small>
                                     </div>
                                 </div>
+                            </td>
+                            <td class="text-center">
+                                <span th:if="${categoria.activo}" class="badge bg-success">
+                                    <i class="bi bi-check-circle me-1"></i>Activo
+                                </span>
+                                <span th:unless="${categoria.activo}" class="badge bg-secondary">
+                                    <i class="bi bi-x-circle me-1"></i>Inactivo
+                                </span>
                             </td>
                             <td class="text-center">
                                 <div class="btn-group" role="group">
@@ -93,14 +107,15 @@
                                     <a th:href="@{/categorias/delete/{id}(id=${categoria.id})}" 
                                        class="btn btn-danger btn-sm" 
                                        title="Eliminar categoría"
-                                       onclick="return confirm('¿Estás seguro de que deseas eliminar esta categoría?');">
+                                       th:if="${categoria.activo}"
+                                       onclick="return confirm('¿Estás seguro de que deseas inactivar esta categoría?');">
                                         <i class="bi bi-trash"></i>
                                     </a>
                                 </div>
                             </td>
                         </tr>
                         <tr th:if="${#lists.isEmpty(categoriasList)}">
-                            <td colspan="3" class="text-center py-5">
+                            <td colspan="4" class="text-center py-5">
                                 <div class="text-muted">
                                     <i class="bi bi-inbox fs-1 d-block mb-3"></i>
                                     <h5>No hay categorías registradas</h5>

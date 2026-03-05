@@ -20,4 +20,6 @@ public class ProductoDTO {
 
     private Long proveedorId;
     private String proveedorNombre;
+
+    private Boolean activo = true;
 }

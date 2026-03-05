@@ -62,4 +62,7 @@ public class Venta {
 
     @OneToMany(mappedBy = "venta", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<DetalleVenta> detalles = new ArrayList<>();
+
+    @Column(name = "activo", nullable = false)
+    private Boolean activo = true;
 }

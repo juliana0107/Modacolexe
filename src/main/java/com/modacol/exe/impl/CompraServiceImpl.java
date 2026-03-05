@@ -147,10 +147,10 @@ public class CompraServiceImpl implements CompraService {
     @Override
     @Transactional
     public void eliminar(Long id) {
-        if (!compraRepository.existsById(id)) {
-            throw new RuntimeException("Compra no encontrada: " + id);
-        }
-        compraRepository.deleteById(id);
+        Compra compra = compraRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Compra no encontrada: " + id));
+        compra.setActivo(false);
+        compraRepository.save(compra);
     }
 
     // ==========================================================
@@ -186,6 +186,18 @@ public class CompraServiceImpl implements CompraService {
     @Override
     public List<String> obtenerEstadosCompra() {
         return List.of("BORRADOR", "APROBADA", "RECIBIDA_PARCIAL", "RECIBIDA_TOTAL", "CANCELADA");
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<CompraDTO> filtrar(LocalDate fechaCompra, LocalDate fechaEntrega, Long proveedorId) {
+        return compraRepository.findAll().stream()
+                .filter(c -> c.getActivo()) // Solo activas
+                .filter(c -> fechaCompra == null || (c.getFechaCompra() != null && c.getFechaCompra().equals(fechaCompra)))
+                .filter(c -> fechaEntrega == null || (c.getFechaEstimadaEntrega() != null && c.getFechaEstimadaEntrega().equals(fechaEntrega)))
+                .filter(c -> proveedorId == null || (c.getProveedor() != null && c.getProveedor().getId().equals(proveedorId)))
+                .map(this::convertToDto)
+                .toList();
     }
 
     // ==========================================================
@@ -234,6 +246,10 @@ public class CompraServiceImpl implements CompraService {
         compra.setFormaPago(dto.getFormaPago());
         compra.setEstado(dto.getEstado());
         compra.setObservaciones(dto.getObservaciones());
+        
+        if (dto.getActivo() != null) {
+            compra.setActivo(dto.getActivo());
+        }
 
         Proveedor proveedor = proveedorRepository.findById(dto.getProveedorId())
                 .orElseThrow(() -> new RuntimeException("Proveedor no encontrado: " + dto.getProveedorId()));
@@ -256,6 +272,7 @@ public class CompraServiceImpl implements CompraService {
         dto.setEstado(compra.getEstado());
         dto.setObservaciones(compra.getObservaciones());
         dto.setTotal(compra.getTotal());
+        dto.setActivo(compra.getActivo());
 
         if (compra.getProveedor() != null) {
             dto.setProveedorId(compra.getProveedor().getId());

@@ -69,6 +69,9 @@ public class Compra {
     )
     private List<DetalleCompra> detalles;
 
+    @Column(name = "activo", nullable = false)
+    private Boolean activo = true;
+
     /** Conveniencia: recalcular total antes de guardar */
     @PrePersist
     @PreUpdate

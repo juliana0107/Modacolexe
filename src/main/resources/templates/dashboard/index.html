@@ -157,19 +157,15 @@
                                 <td><small th:text="${producto.nombre}">Producto</small></td>
                                 <td>
                                     <small>
-                                        <span th:text="${producto.cantidad}"
-                                              th:class="${producto.cantidad < 5} ?
-                                                'text-danger fw-bold' :
-                                                (${producto.cantidad < 10} ?
-                                                 'text-warning fw-bold' :
-                                                 'text-success')}">0</span>
+                                        <span th:text="${producto.cantidad != null ? producto.cantidad : '0'}"
+                                              th:class="${(producto.cantidad ?: 0) < 5} ? 'text-danger fw-bold' : 'text-success'">
+                                            0
+                                        </span>
                                     </small>
                                 </td>
                                 <td>
-                                    <small class="text-primary">
-                                        $
-                                        <span th:text="${#numbers.formatDecimal(
-                                            producto.precioUnitario, 0,'COMMA',0,'POINT')}">0</span>
+                                    <small class="text-primary fw-bold">
+                                        $ <span th:text="${producto.precioUnitario != null ? #numbers.formatDecimal(producto.precioUnitario, 0, 'POINT', 0, 'COMMA') : '0'}">0</span>
                                     </small>
                                 </td>
                             </tr>

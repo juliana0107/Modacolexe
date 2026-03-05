@@ -72,10 +72,10 @@ public class RolServiceImpl implements RolService {
     @Override
     @Transactional
     public void eliminar(Long id) {
-        if (!rolRepository.existsById(id)) {
-            throw new RuntimeException("Rol no encontrado");
-        }
-        rolRepository.deleteById(id);
+        Rol rol = rolRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Rol no encontrado"));
+        rol.setActivo(false);
+        rolRepository.save(rol);
     }
 
     private RolDTO convertToDto(Rol rol) {

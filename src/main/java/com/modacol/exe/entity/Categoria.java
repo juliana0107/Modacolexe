@@ -18,5 +18,8 @@ public class Categoria {
     @Size(min = 3, max = 100, message = "El tipo de categoría debe tener entre 3 y 100 caracteres")
     @Column(name = "tipo_categoria", length = 100)
     private String tipoCategoria;
+
+    @Column(name = "activo", nullable = false)
+    private Boolean activo = true;
 }
 

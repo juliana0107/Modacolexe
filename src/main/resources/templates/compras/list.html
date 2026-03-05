@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
       th:replace="~{layout/base :: layout(~{::title}, ~{::content})}">
+<head>
+    <title>Compras</title>
+</head>
 <body>
 <div th:fragment="content" class="container mt-4">
 
@@ -17,7 +20,6 @@
         </a>
     </div>
 
-    <!-- Filtros -->
     <div class="card border-0 bg-transparent mb-2">
         <div class="card-body py-1">
             <form th:action="@{/compras}" method="get">
@@ -52,9 +54,9 @@
                             <a th:href="@{/compras}" class="btn btn-secondary btn-sm flex-fill">
                                 <i class="bi bi-x-circle"></i>
                             </a>
-                            <a href="/reportes?tipo=compras" class="btn btn-success btn-sm flex-fill">
+                            <button type="button" onclick="generarReporteCompras()" class="btn btn-success btn-sm flex-fill">
                                 <i class="bi bi-file-earmark-excel"></i>
-                            </a>
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -62,7 +64,6 @@
         </div>
     </div>
 
-    <!-- Tabla -->
     <div class="card">
         <div class="card-body p-0">
             <div class="table-responsive" style="max-height: 500px; overflow-y: auto;">
@@ -76,13 +77,15 @@
                         <th>Proveedor</th>
                         <th>Productos</th>
                         <th>Usuario</th>
-                        <th>Estado</th>
+                        <th>Estado Compra</th>
                         <th class="text-end">Total</th>
+                        <th class="text-center">Estado</th>
                         <th>Acciones</th>
                     </tr>
                     </thead>
                     <tbody>
-                    <tr th:each="compra : ${comprasList}">
+                    <tr th:each="compra : ${comprasList}"
+                        th:classappend="${!compra.activo} ? 'table-secondary' : ''">
                         <td th:text="${compra.id}"></td>
                         <td th:text="${compra.numeroCompra}"></td>
                         <td th:text="${compra.fechaCompra}"></td>
@@ -102,13 +105,22 @@
                         <td th:text="${compra.estado}"></td>
                         <td class="text-end" th:text="${#numbers.formatDecimal(compra.total, 1, 'POINT', 2, 'COMMA')}"></td>
                         <td class="text-center">
+                            <span th:if="${compra.activo}" class="badge bg-success">
+                                <i class="bi bi-check-circle me-1"></i>Activo
+                            </span>
+                            <span th:unless="${compra.activo}" class="badge bg-secondary">
+                                <i class="bi bi-x-circle me-1"></i>Inactivo
+                            </span>
+                        </td>
+                        <td class="text-center">
                             <a th:href="@{/compras/edit/{id}(id=${compra.id})}" class="btn btn-primary btn-sm me-1">
                                 <i class="bi bi-pencil-square"></i>
                             </a>
                             <form th:action="@{/compras/delete/{id}(id=${compra.id})}"
                                   method="post"
                                   style="display:inline"
-                                  onsubmit="return confirm('¿Eliminar esta compra?');">
+                                  th:if="${compra.activo}"
+                                  onsubmit="return confirm('¿Inactivar esta compra?');">
                                 <button type="submit" class="btn btn-danger btn-sm">
                                     <i class="bi bi-trash"></i>
                                 </button>
@@ -139,7 +151,10 @@
 
 <script>
     function generarReporteCompras() {
-        window.location.href = '/reportes?tipo=compras';
+        const fechaC = document.getElementById('fechaCompra').value;
+        const fechaE = document.getElementById('fechaEstimadaEntrega').value;
+        const provId = document.getElementById('proveedorId').value;
+        window.location.href = `/reportes?tipo=compras&fechaCompra=${fechaC}&fechaEntrega=${fechaE}&proveedorId=${provId}`;
     }
 </script>
 

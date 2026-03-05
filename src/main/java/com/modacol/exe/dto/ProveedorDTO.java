@@ -24,4 +24,6 @@ public class ProveedorDTO {
 
     @Pattern(regexp = "^[0-9]{7,15}$", message = "El contacto debe tener entre 7 y 15 dígitos")
     private String contacto;
+
+    private Boolean activo = true;
 }

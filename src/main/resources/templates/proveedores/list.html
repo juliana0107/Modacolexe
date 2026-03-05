@@ -64,11 +64,13 @@
                         <th>Dirección</th>
                         <th>Correo</th>
                         <th>Contacto</th>
+                        <th class="text-center">Estado</th>
                         <th>Acciones</th>
                     </tr>
                     </thead>
                     <tbody>
-                    <tr th:each="p : ${proveedoresList}">
+                    <tr th:each="p : ${proveedoresList}"
+                        th:classappend="${!p.activo} ? 'table-secondary' : ''">
                         <td th:text="${p.id}"></td>
                         <td th:text="${p.razonSocial}"></td>
                         <td th:text="${p.identificacion}"></td>
@@ -76,17 +78,26 @@
                         <td th:text="${p.correo}"></td>
                         <td th:text="${p.contacto}"></td>
                         <td class="text-center">
+                            <span th:if="${p.activo}" class="badge bg-success">
+                                <i class="bi bi-check-circle me-1"></i>Activo
+                            </span>
+                            <span th:unless="${p.activo}" class="badge bg-secondary">
+                                <i class="bi bi-x-circle me-1"></i>Inactivo
+                            </span>
+                        </td>
+                        <td class="text-center">
                             <a th:href="@{/proveedores/edit/{id}(id=${p.id})}" class="btn btn-primary btn-sm me-1">
                                 <i class="bi bi-pencil-square"></i>
                             </a>
                             <a th:href="@{/proveedores/delete/{id}(id=${p.id})}" class="btn btn-danger btn-sm"
-                               onclick="return confirm('¿Eliminar proveedor?');">
+                               th:if="${p.activo}"
+                               onclick="return confirm('¿Inactivar proveedor?');">
                                 <i class="bi bi-trash"></i>
                             </a>
                         </td>
                     </tr>
                     <tr th:if="${#lists.isEmpty(proveedoresList)}">
-                        <td colspan="7" class="text-center text-muted">
+                        <td colspan="8" class="text-center text-muted">
                             No hay proveedores registrados.
                         </td>
                     </tr>

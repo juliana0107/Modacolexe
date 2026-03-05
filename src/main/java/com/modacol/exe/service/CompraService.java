@@ -2,6 +2,7 @@ package com.modacol.exe.service;
 
 import com.modacol.exe.dto.CompraDTO;
 
+import java.time.LocalDate;
 import java.util.List;
 
 public interface CompraService {
@@ -21,4 +22,6 @@ public interface CompraService {
     List<String> obtenerTiposDocumento();
     List<String> obtenerFormasPago();
     List<String> obtenerEstadosCompra();
+
+    List<CompraDTO> filtrar(LocalDate fechaCompra, LocalDate fechaEntrega, Long proveedorId);
 }

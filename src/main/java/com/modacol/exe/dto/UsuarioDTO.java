@@ -28,4 +28,6 @@ public class UsuarioDTO {
 
     @NotNull(message = "El rol es obligatorio")
     private Long rolId;
+
+    private Boolean activo = true;
 }

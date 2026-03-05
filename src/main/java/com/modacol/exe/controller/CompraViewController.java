@@ -11,6 +11,7 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Controller
@@ -34,19 +35,26 @@ public class CompraViewController {
 
     // LISTADO DE COMPRAS
     @GetMapping
-    public String listar(Model model) {
-        List<CompraDTO> compras = compraService.listar();
+    public String listarCompras(
+            @RequestParam(required = false) LocalDate fechaCompra,
+            @RequestParam(required = false) LocalDate fechaEstimadaEntrega,
+            @RequestParam(required = false) Long proveedorId,
+            Model model) {
+
+        // Ejecutar el filtro (Asegúrate de haber implementado esto en el Service como vimos antes)
+        List<CompraDTO> compras = compraService.filtrar(fechaCompra, fechaEstimadaEntrega, proveedorId);
+
         model.addAttribute("comprasList", compras);
-        return "compras/list";      // vista: templates/compras/list.html
+        model.addAttribute("proveedores", proveedorService.listar());
+
+        // OJO: Cambié "compras/list" por "compras/index" para que coincida con tu archivo
+        return "compras/list";
     }
 
-    // FORMULARIO NUEVA COMPRA (CABECERA + DETALLE)
+    // FORMULARIO NUEVA COMPRA
     @GetMapping("/new")
     public String crear(Model model) {
         CompraDTO compra = compraService.crearCompraVacia();
-
-        System.out.println("GET /compras/new -> detalles: " + compra.getDetalles().size());
-
         model.addAttribute("compra", compra);
         cargarCombos(model);
         return "compras/form";
@@ -65,20 +73,18 @@ public class CompraViewController {
         return "compras/form";
     }
 
-    // GUARDAR (CREAR O ACTUALIZAR)
+    // GUARDAR
     @PostMapping
     public String guardar(
             @Valid @ModelAttribute("compra") CompraDTO formDTO,
             BindingResult result,
             Model model
     ) {
-        // Errores de Bean Validation (proveedor obligatorio, usuario, detalles, etc.)
         if (result.hasErrors()) {
             cargarCombos(model);
             return "compras/form";
         }
 
-        // Validación de negocio: fechaEntrega >= fechaCompra
         if (formDTO.getFechaEstimadaEntrega() != null &&
                 formDTO.getFechaCompra() != null &&
                 formDTO.getFechaEstimadaEntrega().isBefore(formDTO.getFechaCompra())) {
@@ -89,7 +95,6 @@ public class CompraViewController {
             return "compras/form";
         }
 
-        // Si no tiene ID → es nueva compra (empresa compra a proveedor)
         if (formDTO.getId() == null) {
             compraService.crear(formDTO);
         } else {
@@ -99,7 +104,7 @@ public class CompraViewController {
         return "redirect:/compras?ok";
     }
 
-    // ELIMINAR COMPRA
+    // ELIMINAR
     @PostMapping("/delete/{id}")
     public String eliminar(@PathVariable Long id) {
         compraService.eliminar(id);
@@ -109,11 +114,9 @@ public class CompraViewController {
     private void cargarCombos(Model model) {
         model.addAttribute("usuarios", usuarioService.listar());
         model.addAttribute("proveedores", proveedorService.listar());
-
         model.addAttribute("tiposDocumento", compraService.obtenerTiposDocumento());
         model.addAttribute("formasPago", compraService.obtenerFormasPago());
         model.addAttribute("estados", compraService.obtenerEstadosCompra());
         model.addAttribute("productos", productoService.listar());
     }
-
 }

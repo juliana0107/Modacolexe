@@ -44,4 +44,7 @@ public class Producto {
     @ManyToOne
     @JoinColumn(name = "proveedor_id")
     private Proveedor proveedor;
+
+    @Column(name = "activo", nullable = false)
+    private Boolean activo = true;
 }

@@ -86,10 +86,10 @@ public class ProductoServiceImpl implements ProductoService {
     @Override
     @Transactional
     public void eliminar(Long id) {
-        if (!productoRepository.existsById(id)) {
-            throw new RuntimeException("Producto no encontrado: " + id);
-        }
-        productoRepository.deleteById(id);
+        Producto producto = productoRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Producto no encontrado: " + id));
+        producto.setActivo(false);
+        productoRepository.save(producto);
     }
 
 

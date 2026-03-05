@@ -3,11 +3,12 @@ package com.modacol.exe.controller;
 import com.modacol.exe.dto.VentaDTO;
 import com.modacol.exe.service.VentaService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller; // CAMBIADO: de @RestController a @Controller
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@RestController
+@Controller // <--- CLAVE: Cambiado para permitir redirecciones
 @RequestMapping("/api/ventas")
 public class VentaController {
 
@@ -18,26 +19,33 @@ public class VentaController {
     }
 
     @PostMapping
-    public ResponseEntity<VentaDTO> crear(@RequestBody VentaDTO dto) {
-        return ResponseEntity.ok(ventaService.crear(dto));
-    }
-
-    @GetMapping
-    public ResponseEntity<List<VentaDTO>> listar() {
-        return ResponseEntity.ok(ventaService.listar());
-    }
-
-    @GetMapping("/{id}")
-    public ResponseEntity<VentaDTO> obtener(@PathVariable Long id) {
-        return ResponseEntity.ok(ventaService.obtenerPorId(id));
+    public String crear(@ModelAttribute VentaDTO dto) {
+        ventaService.crear(dto);
+        return "redirect:/ventas";
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<VentaDTO> actualizar(@PathVariable Long id, @RequestBody VentaDTO dto) {
-        return ResponseEntity.ok(ventaService.actualizar(id, dto));
+    public String actualizar(@PathVariable Long id, @ModelAttribute VentaDTO dto) {
+        ventaService.actualizar(id, dto);
+        return "redirect:/ventas";
+    }
+
+    // Para que estos métodos sigan devolviendo JSON (como antes),
+    // agregamos @ResponseBody porque ahora la clase es @Controller
+    @GetMapping
+    @ResponseBody
+    public List<VentaDTO> listar() {
+        return ventaService.listar();
+    }
+
+    @GetMapping("/{id}")
+    @ResponseBody
+    public VentaDTO obtener(@PathVariable Long id) {
+        return ventaService.obtenerPorId(id);
     }
 
     @DeleteMapping("/{id}")
+    @ResponseBody
     public ResponseEntity<Void> eliminar(@PathVariable Long id) {
         ventaService.eliminar(id);
         return ResponseEntity.noContent().build();

@@ -8,4 +8,5 @@ import java.util.List;
 
 public interface CategoriaRepository extends JpaRepository<Categoria, Long>, JpaSpecificationExecutor<Categoria> {
     List<Categoria> findAllByOrderByIdAsc();
+    List<Categoria> findByActivoTrueOrderByIdAsc();
 }

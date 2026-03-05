@@ -67,7 +67,10 @@ public class CategoriaServiceImpl implements CategoriaService {
 
     @Override
     public void eliminar(Long id) {
-        categoriaRepository.deleteById(id);
+        Categoria categoria = categoriaRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Categoría no encontrada con id: " + id));
+        categoria.setActivo(false);
+        categoriaRepository.save(categoria);
     }
 
     private CategoriaDTO convertToDto(Categoria categoria) {

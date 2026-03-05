@@ -74,10 +74,10 @@ public class ProveedorServiceImpl implements ProveedorService {
     @Override
     @Transactional
     public void eliminar(Long id) {
-        if (!proveedorRepository.existsById(id)) {
-            throw new RuntimeException("Proveedor no encontrado");
-        }
-        proveedorRepository.deleteById(id);
+        Proveedor proveedor = proveedorRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Proveedor no encontrado"));
+        proveedor.setActivo(false);
+        proveedorRepository.save(proveedor);
     }
 
     private ProveedorDTO convertToDto(Proveedor proveedor) {

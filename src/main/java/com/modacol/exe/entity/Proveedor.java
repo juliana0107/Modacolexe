@@ -37,6 +37,9 @@ public class Proveedor {
     @Max(value = 999999999999999L, message = "El contacto no puede exceder 15 dígitos")
     @Column(name = "contacto")
     private Long contacto;
+
+    @Column(name = "activo", nullable = false)
+    private Boolean activo = true;
 }
 
 

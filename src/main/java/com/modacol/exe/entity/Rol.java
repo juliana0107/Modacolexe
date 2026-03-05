@@ -23,4 +23,7 @@ public class Rol {
     @Size(max = 50, message = "El tipo de rol no puede exceder 50 caracteres")
     @Column(name = "tipo", nullable = false, length = 50)
     private String tipo;
+
+    @Column(name = "activo", nullable = false)
+    private Boolean activo = true;
 }

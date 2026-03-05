@@ -1,5 +1,6 @@
 package com.modacol.exe.controller;
 
+import com.modacol.exe.dto.ProductoDTO;
 import com.modacol.exe.dto.VentaDTO;
 import com.modacol.exe.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Controller
 public class DashboardController {
@@ -19,17 +21,17 @@ public class DashboardController {
     @Autowired private ProductoService productoService;
     @Autowired private ProveedorService proveedorService;
     @Autowired private VentaService ventaService;
-    @Autowired private CompraService compraService;
-    @Autowired private FlujoCajaService flujoCajaService;
-
 
     @GetMapping("/dashboard")
     public String dashboard(Model model) {
 
+        // 1. Cargamos productos una sola vez para optimizar
+        List<ProductoDTO> todosLosProductos = productoService.listar();
+
         // ---------- Contadores básicos ----------
         model.addAttribute("totalUsuarios", usuarioService.listar().size());
         model.addAttribute("totalClientes", clienteService.listar().size());
-        model.addAttribute("totalProductos", productoService.listar().size());
+        model.addAttribute("totalProductos", todosLosProductos.size());
         model.addAttribute("totalProveedores", proveedorService.listar().size());
 
         LocalDate hoy = LocalDate.now();
@@ -42,59 +44,52 @@ public class DashboardController {
         model.addAttribute("ventasHoy", ventasHoy.size());
         model.addAttribute("ventasMes", ventasMes.size());
 
-        // Ingresos del mes
+        // Ingresos del mes (COP)
         BigDecimal ingresosMes = ventasMes.stream()
                 .map(v -> v.getTotal() != null ? v.getTotal() : BigDecimal.ZERO)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
         model.addAttribute("ingresosMes", ingresosMes);
 
-        // ---------- Productos con stock bajo ----------
-        long productosStockBajo = productoService.listar().stream()
+        // ---------- Productos con stock crítico (Menos de 10) ----------
+        long productosStockBajo = todosLosProductos.stream()
                 .filter(p -> p.getCantidad() != null && p.getCantidad() < 10)
                 .count();
         model.addAttribute("productosStockBajo", productosStockBajo);
 
-        // ---------- Últimas ventas ----------
+        // ---------- Últimas ventas (Historial) ----------
         List<VentaDTO> ultimasVentas = ventaService.listar().stream()
                 .sorted((v1, v2) -> {
-                    LocalDate f1 = v1.getFechaVenta();
-                    LocalDate f2 = v2.getFechaVenta();
-                    if (f1 == null && f2 == null) return 0;
-                    if (f1 == null) return 1;
-                    if (f2 == null) return -1;
-                    return f2.compareTo(f1); // descendente
+                    LocalDate f1 = v1.getFechaVenta() != null ? v1.getFechaVenta() : LocalDate.MIN;
+                    LocalDate f2 = v2.getFechaVenta() != null ? v2.getFechaVenta() : LocalDate.MIN;
+                    return f2.compareTo(f1); // Descendente: más recientes primero
                 })
                 .limit(5)
                 .toList();
         model.addAttribute("ultimasVentas", ultimasVentas);
 
-        // ---------- Productos más “populares” (menos stock) ----------
-        var productosPopulares = productoService.listar().stream()
+        // ---------- Tabla de Stock Crítico (Los 5 más bajos) ----------
+        // Aquí aseguramos que el DTO pase datos limpios a la vista
+        var productosPopulares = todosLosProductos.stream()
                 .sorted(Comparator.comparingInt(p -> p.getCantidad() != null ? p.getCantidad() : 0))
                 .limit(5)
                 .toList();
         model.addAttribute("productosPopulares", productosPopulares);
 
-        // ---------- Datos para el GRÁFICO (ventas por día del mes) ----------
-        // Usamos TreeMap para que ya queden ordenadas por fecha
+        // ---------- Datos para el GRÁFICO (Chart.js) ----------
         Map<LocalDate, BigDecimal> totalesPorDia = new TreeMap<>();
-
         for (VentaDTO v : ventasMes) {
-            LocalDate fecha = v.getFechaVenta();
-            if (fecha == null) continue;
-
-            BigDecimal total = v.getTotal() != null ? v.getTotal() : BigDecimal.ZERO;
-            totalesPorDia.merge(fecha, total, BigDecimal::add);
+            if (v.getFechaVenta() != null) {
+                BigDecimal total = v.getTotal() != null ? v.getTotal() : BigDecimal.ZERO;
+                totalesPorDia.merge(v.getFechaVenta(), total, BigDecimal::add);
+            }
         }
 
         List<String> chartLabels = new ArrayList<>();
-        List<BigDecimal> chartData = new ArrayList<>();
+        List<Double> chartData = new ArrayList<>(); // Usamos Double para compatibilidad con JavaScript
 
-        // Etiquetas tipo "11/12", "12/12", etc.
         totalesPorDia.forEach((fecha, total) -> {
-            String label = fecha.getDayOfMonth() + "/" + fecha.getMonthValue();
-            chartLabels.add(label);
-            chartData.add(total);
+            chartLabels.add(fecha.getDayOfMonth() + "/" + fecha.getMonthValue());
+            chartData.add(total.doubleValue());
         });
 
         model.addAttribute("chartLabels", chartLabels);

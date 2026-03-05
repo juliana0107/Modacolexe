@@ -39,4 +39,7 @@ public class Cliente {
     @Size(max = 100, message = "El correo no puede exceder 100 caracteres")
     @Column(name = "correo", unique = true, length = 100)
     private String correo;
+
+    @Column(name = "activo", nullable = false)
+    private Boolean activo = true;
 }

@@ -11,4 +11,5 @@ public interface ReportService {
     void generarReporteCompras(OutputStream outputStream);
     void generarReporteCategorias(OutputStream outputStream);
     void generarReporteFlujo(OutputStream outputStream);
+    void generarReporteRoles(OutputStream os);
 }

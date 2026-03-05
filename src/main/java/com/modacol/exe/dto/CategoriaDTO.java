@@ -6,4 +6,5 @@ import lombok.Data;
 public class CategoriaDTO {
     private Long id;
     private String tipoCategoria;
+    private Boolean activo = true;
 }

@@ -56,4 +56,7 @@ public class Usuario {
             foreignKey = @ForeignKey(name = "fk_usuario_rol")
     )
     private Rol rol;
+
+    @Column(name = "activo", nullable = false)
+    private Boolean activo = true;
 }

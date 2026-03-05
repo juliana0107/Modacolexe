@@ -27,4 +27,6 @@ public class ClienteDTO {
     @Email(message = "El correo debe ser válido")
     @Size(max = 100, message = "El correo no puede exceder 100 caracteres")
     private String correo;
+
+    private Boolean activo = true;
 }

@@ -48,6 +48,9 @@ public class ReportController {
                 case "categorias":
                     reportService.generarReporteCategorias(response.getOutputStream());
                     break;
+                case "roles":
+                    reportService.generarReporteRoles(response.getOutputStream());
+                    break;
                 case "flujo-caja":
                     reportService.generarReporteFlujo(response.getOutputStream());
                     break;

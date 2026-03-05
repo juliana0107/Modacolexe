@@ -55,4 +55,6 @@ public class CompraDTO {
     @Valid
     private List<DetalleCompraDTO> detalles = new ArrayList<>();
 
+    private Boolean activo = true;
+
 }

@@ -16,6 +16,8 @@ public class RolDTO {
     )
     private String tipo;
 
+    private Boolean activo = true;
+
     public void setTipo(String tipo) {
         this.tipo = (tipo != null) ? tipo.toUpperCase() : null;
     }

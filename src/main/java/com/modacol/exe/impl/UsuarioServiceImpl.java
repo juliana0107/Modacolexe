@@ -105,7 +105,10 @@ public class UsuarioServiceImpl implements UsuarioService {
     @Override
     @Transactional
     public void eliminar(Long id) {
-        usuarioRepository.deleteById(id);
+        Usuario usuario = usuarioRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        usuario.setActivo(false);
+        usuarioRepository.save(usuario);
     }
 
     private UsuarioDTO convertToDto(Usuario usuario) {
